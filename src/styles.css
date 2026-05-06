@@ -1,0 +1,123 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Special+Elite&display=swap');
+
+:root {
+  color: #ffffff;
+  background-color: #1a1a1a;
+  font-family: 'Playfair Display', serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background-color: #1a1a1a;
+  overflow: hidden;
+  touch-action: manipulation;
+  font-family: 'Playfair Display', serif;
+}
+
+.typewriter-body {
+  background: linear-gradient(180deg, #3a3b3c 0%, #1e1e1e 100%);
+  box-shadow:
+    0 -10px 30px rgba(0, 0, 0, 0.8),
+    inset 0 2px 3px rgba(255, 255, 255, 0.1),
+    inset 0 -5px 15px rgba(0, 0, 0, 0.5);
+  border-top-left-radius: 30px;
+  border-top-right-radius: 30px;
+  border-top: 2px solid #555;
+  position: relative;
+}
+
+.paper-slot {
+  background: #111;
+  box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.9);
+  border-bottom: 1px solid #444;
+  width: 85%;
+  max-width: 500px;
+}
+
+.skeuo-key {
+  font-family: 'Special Elite', monospace;
+  background: radial-gradient(circle at 30% 30%, #e8e8e4 0%, #b8b8b0 100%);
+  border: 2px solid #8a8a8a;
+  border-radius: 50%;
+  box-shadow:
+    0 4px 0 #5a5a5a,
+    0 6px 10px rgba(0, 0, 0, 0.6),
+    inset 0 1px 3px rgba(255, 255, 255, 0.8);
+  color: #111;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.05s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  position: relative;
+}
+
+.skeuo-key::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.skeuo-key:active,
+.skeuo-key.active-state {
+  box-shadow:
+    0 1px 0 #5a5a5a,
+    0 2px 3px rgba(0, 0, 0, 0.6),
+    inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  transform: translateY(3px);
+  background: radial-gradient(circle at 30% 30%, #dcdcc8 0%, #a8a8a0 100%);
+}
+
+.skeuo-key-wide {
+  border-radius: 20px;
+}
+
+.skeuo-key-wide::before {
+  border-radius: 16px;
+}
+
+.balloon-char {
+  font-family: 'Special Elite', monospace;
+  position: absolute;
+  font-size: 1.5rem;
+  color: #e0e0e0;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+  transform-origin: center center;
+  white-space: pre;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.balloon-char.error {
+  color: #ff6b6b;
+  text-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+}
+
+.target-text {
+  color: rgba(255, 255, 255, 0.15);
+  font-family: 'Special Elite', monospace;
+  font-size: 1.5rem;
+  letter-spacing: 0.1em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  transition: opacity 1.5s ease-in-out;
+}
+
+.target-text.fade-out {
+  opacity: 0;
+}

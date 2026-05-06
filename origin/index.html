@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Poetic Typewriter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Special+Elite&display=swap');
+
+        body {
+            background-color: #1a1a1a;
+            overflow: hidden;
+            touch-action: manipulation;
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* 拟物风打字机机体 */
+        .typewriter-body {
+            background: linear-gradient(180deg, #3a3b3c 0%, #1e1e1e 100%);
+            box-shadow: 
+                0 -10px 30px rgba(0,0,0,0.8), 
+                inset 0 2px 3px rgba(255,255,255,0.1),
+                inset 0 -5px 15px rgba(0,0,0,0.5);
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            border-top: 2px solid #555;
+            position: relative;
+        }
+
+        /* 打字机出纸口 */
+        .paper-slot {
+            background: #111;
+            box-shadow: inset 0 5px 10px rgba(0,0,0,0.9);
+            border-bottom: 1px solid #444;
+            width: 85%;
+            max-width: 500px;
+        }
+
+        /* 拟物风按键 */
+        .skeuo-key {
+            font-family: 'Special Elite', monospace;
+            background: radial-gradient(circle at 30% 30%, #e8e8e4 0%, #b8b8b0 100%);
+            border: 2px solid #8a8a8a;
+            border-radius: 50%;
+            box-shadow: 
+                0 4px 0 #5a5a5a, 
+                0 6px 10px rgba(0,0,0,0.6),
+                inset 0 1px 3px rgba(255,255,255,0.8);
+            color: #111;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: all 0.05s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            position: relative;
+        }
+
+        .skeuo-key::before {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,0,0,0.2);
+            box-shadow: inset 0 0 2px rgba(255,255,255,0.5);
+        }
+
+        .skeuo-key:active, .skeuo-key.active-state {
+            box-shadow: 
+                0 1px 0 #5a5a5a, 
+                0 2px 3px rgba(0,0,0,0.6),
+                inset 0 2px 4px rgba(0,0,0,0.3);
+            transform: translateY(3px);
+            background: radial-gradient(circle at 30% 30%, #dcdcc8 0%, #a8a8a0 100%);
+        }
+
+        .skeuo-key-wide {
+            border-radius: 20px;
+        }
+        .skeuo-key-wide::before {
+            border-radius: 16px;
+        }
+
+        /* 升起的气球文字 */
+        .balloon-char {
+            font-family: 'Special Elite', monospace;
+            position: absolute;
+            font-size: 1.5rem;
+            color: #e0e0e0;
+            text-shadow: 0 0 5px rgba(255,255,255,0.3);
+            transform-origin: center center;
+            white-space: pre;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        .balloon-char.error {
+            color: #ff6b6b;
+            text-shadow: 0 0 5px rgba(255,107,107,0.5);
+        }
+
+        /* 目标诗句 */
+        .target-text {
+            color: rgba(255, 255, 255, 0.15);
+            font-family: 'Special Elite', monospace;
+            font-size: 1.5rem;
+            letter-spacing: 0.1em;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            transition: opacity 1.5s ease-in-out; 
+        }
+        
+        .target-text.fade-out {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="w-full h-screen flex flex-col justify-between">
+
+    <div id="stage" class="relative flex-1 w-full overflow-hidden">
+        <!-- 顶部目标诗句 -->
+        <div class="absolute top-20 w-full flex justify-center px-4">
+            <div id="target-poem" class="target-text flex flex-wrap justify-center"></div>
+        </div>
+
+        <!-- 用于绘制细线的 SVG 画布 -->
+        <svg id="string-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
+
+        <!-- 气球文字容器 -->
+        <div id="balloons-container" class="absolute inset-0 w-full h-full pointer-events-none"></div>
+    </div>
+
+    <!-- 拟物风打字机区域 -->
+    <div id="typewriter" class="typewriter-body w-full pb-8 pt-4 px-2 sm:px-4 z-30">
+        <div id="paper-slot-area" class="h-2 mx-auto rounded-full paper-slot mb-6 relative"></div>
+
+        <div id="keyboard" class="flex flex-col gap-2 sm:gap-3 max-w-2xl mx-auto">
+            <div class="flex justify-center gap-1 sm:gap-2">
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="q">Q</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="w">W</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="e">E</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="r">R</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="t">T</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="y">Y</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="u">U</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="i">I</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="o">O</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="p">P</div>
+            </div>
+            <div class="flex justify-center gap-1 sm:gap-2 ml-4">
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="a">A</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="s">S</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="d">D</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="f">F</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="g">G</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="h">H</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="j">J</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="k">K</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="l">L</div>
+            </div>
+            <div class="flex justify-center gap-1 sm:gap-2 pr-4 sm:pr-8">
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="z">Z</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="x">X</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="c">C</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="v">V</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="b">B</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="n">N</div>
+                <div class="skeuo-key w-8 h-8 sm:w-12 sm:h-12 text-sm sm:text-lg" data-key="m">M</div>
+                <div class="skeuo-key skeuo-key-wide px-3 sm:px-4 h-8 sm:h-12 text-xs sm:text-sm bg-red-900/20" data-key="Backspace">DEL</div>
+            </div>
+            <div class="flex justify-center mt-2">
+                <div class="skeuo-key skeuo-key-wide w-40 sm:w-64 h-10 sm:h-12" data-key=" "></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PretextEngine = {
+            targetSpans: [],
+            
+            init: function(containerId, text) {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+                this.targetSpans = [];
+                
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i];
+                    const span = document.createElement('span');
+                    span.innerText = char === ' ' ? '\u00A0' : char;
+                    span.className = 'inline-block transition-opacity duration-500';
+                    container.appendChild(span);
+                    
+                    this.targetSpans.push({ char: char, element: span });
+                }
+            },
+
+            getGlyphMetrics: function(index) {
+                if (index < 0 || index >= this.targetSpans.length) return null;
+                const rect = this.targetSpans[index].element.getBoundingClientRect();
+                return {
+                    x: rect.left + rect.width / 2,
+                    y: rect.bottom
+                };
+            }
+        };
+
+        const POEMS = [
+            "time is a river",
+            "stars hide your fires",
+            "all that is gold does not glitter",
+            "hope is the thing with feathers",
+            "a quiet mind cures all",
+            "not all those who wander are lost",
+            "to be or not to be",
+            "even the darkest night will end",
+            "where there is love there is life",
+            "breathe in the wild air",
+            "turn your wounds into wisdom",
+            "let it be",
+            "we are made of star stuff",
+            "silence is a source of great strength",
+            "keep your eyes on the stars",
+            "beauty is truth truth beauty",
+            "whatever you are be a good one",
+            "the poetry of earth is never dead",
+            "stay hungry stay foolish",
+            "miles to go before i sleep"
+        ];
+
+        let currentPoemIndex = 0;
+        let currentPoem = "";
+        let typedIndex = 0;
+        let typedText = "";
+        let isInputLocked = false;
+        let activeBalloons = []; 
+        
+        let gameState = 'typing'; 
+
+        const paperSlotArea = document.getElementById('paper-slot-area');
+        const balloonsContainer = document.getElementById('balloons-container');
+        const svgCanvas = document.getElementById('string-canvas');
+        const targetPoemContainer = document.getElementById('target-poem');
+
+        const easeOutQuad = t => t * (2 - t);
+        const easeInCubic = t => t * t * t;
+
+        window.onload = () => {
+            loadNextPoem();
+            requestAnimationFrame(gameLoop);
+        };
+
+        function loadNextPoem() {
+            currentPoem = POEMS[currentPoemIndex];
+            PretextEngine.init('target-poem', currentPoem);
+            targetPoemContainer.classList.remove('fade-out');
+            
+            typedIndex = 0;
+            typedText = "";
+            isInputLocked = false;
+            gameState = 'typing';
+            activeBalloons = [];
+            balloonsContainer.innerHTML = '';
+            svgCanvas.innerHTML = '';
+            
+            currentPoemIndex = (currentPoemIndex + 1) % POEMS.length;
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (isInputLocked) return;
+            handleInput(e.key);
+            highlightVisualKey(e.key);
+        });
+
+        document.querySelectorAll('.skeuo-key').forEach(keyEl => {
+            const triggerKey = (e) => {
+                e.preventDefault();
+                if (isInputLocked) return;
+                const key = keyEl.getAttribute('data-key');
+                handleInput(key);
+                keyEl.classList.add('active-state');
+                setTimeout(() => keyEl.classList.remove('active-state'), 100);
+            };
+            keyEl.addEventListener('touchstart', triggerKey, {passive: false});
+            keyEl.addEventListener('mousedown', triggerKey);
+        });
+
+        function highlightVisualKey(key) {
+            let searchKey = key.toLowerCase();
+            if (key === 'Backspace') searchKey = 'Backspace';
+            if (key === ' ') searchKey = ' ';
+            
+            const keyEl = document.querySelector(`.skeuo-key[data-key="${searchKey}"]`);
+            if (keyEl) {
+                keyEl.classList.add('active-state');
+                setTimeout(() => keyEl.classList.remove('active-state'), 100);
+            }
+        }
+
+        function getOriginCoordsForAlphabet(char) {
+            const slotRect = paperSlotArea.getBoundingClientRect();
+            const startY = slotRect.top;
+            
+            const charCode = char.toLowerCase().charCodeAt(0);
+            let index = charCode - 97;
+            
+            if (index < 0 || index > 25) index = 12;
+
+            const padding = slotRect.width * 0.1; 
+            const usableWidth = slotRect.width - padding * 2;
+            
+            const step = usableWidth / 25; 
+            
+            const startX = slotRect.left + padding + (step * index);
+            return { x: startX, y: startY };
+        }
+
+        function handleInput(key) {
+            if (key === 'Backspace') {
+                if (typedIndex > 0) {
+                    typedIndex--;
+                    typedText = typedText.slice(0, -1);
+                    
+                    const balloonToDrop = activeBalloons.find(b => b.index === typedIndex);
+                    if (balloonToDrop && balloonToDrop.state !== 'dead') {
+                        balloonToDrop.state = 'falling';
+                        balloonToDrop.fallProgress = 0;
+                        balloonToDrop.startX = balloonToDrop.currentX;
+                        balloonToDrop.startY = balloonToDrop.currentY;
+                    }
+                }
+                return;
+            }
+
+            if (key.length === 1 && typedIndex < currentPoem.length) {
+                const char = key.toLowerCase();
+                const targetChar = currentPoem[typedIndex];
+                const isCorrect = char === targetChar;
+
+                typedText += char;
+
+                if (char !== ' ') {
+                    spawnBalloon(char, typedIndex, isCorrect);
+                }
+
+                typedIndex++;
+                
+                if (typedText === currentPoem) {
+                    isInputLocked = true;
+                    gameState = 'waiting_to_rise'; 
+                }
+            }
+        }
+
+        function spawnBalloon(char, index, isCorrect) {
+            const metrics = PretextEngine.getGlyphMetrics(index);
+            if (!metrics) return;
+
+            const originCoords = getOriginCoordsForAlphabet(char);
+
+            const el = document.createElement('div');
+            el.className = `balloon-char ${!isCorrect ? 'error' : ''}`;
+            el.innerText = char;
+            el.style.transform = `translate(-50%, -100%)`;
+            balloonsContainer.appendChild(el);
+
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('stroke', 'rgba(255, 255, 255, 0.3)');
+            path.setAttribute('stroke-width', '1');
+            path.setAttribute('fill', 'none');
+            svgCanvas.appendChild(path);
+
+            activeBalloons.push({
+                index: index,
+                char: char,
+                element: el,
+                pathElement: path,
+                isCorrect: isCorrect,
+                state: 'rising',
+                progress: 0,
+                speed: 0.02 + Math.random() * 0.01,
+                originX: originCoords.x,
+                originY: originCoords.y,
+                startX: originCoords.x,
+                startY: originCoords.y,
+                targetX: metrics.x,
+                targetY: metrics.y,
+                currentX: originCoords.x,
+                currentY: originCoords.y,
+                swayOffset: Math.random() * Math.PI * 2,
+                currentRot: 0,
+                velX: 0,
+                velY: 0,
+                rotVel: 0,
+                opacity: 1,
+                id: Math.random()
+            });
+        }
+
+        function gameLoop() {
+            const time = Date.now() / 1000;
+
+            for (let i = activeBalloons.length - 1; i >= 0; i--) {
+                const balloon = activeBalloons[i];
+                const windBend = Math.sin(time * 1.5 + balloon.swayOffset) * 30; 
+
+                switch (balloon.state) {
+                    case 'rising':
+                        balloon.progress += balloon.speed;
+                        if (balloon.progress >= 1) {
+                            balloon.progress = 1;
+                            balloon.state = 'swaying'; 
+                        }
+                        
+                        const easeT = easeOutQuad(balloon.progress);
+                        balloon.currentX = balloon.startX + (balloon.targetX - balloon.startX) * easeT;
+                        balloon.currentY = balloon.startY + (balloon.targetY - balloon.startY) * easeT;
+                        balloon.currentRot = 0; 
+                        
+                        balloon.element.style.transform = `translate(calc(${balloon.currentX}px - 50%), calc(${balloon.currentY}px - 100%))`;
+                        updatePath(balloon.pathElement, balloon.originX, balloon.originY, balloon.currentX, balloon.currentY, windBend * balloon.progress);
+                        break;
+
+                    case 'swaying':
+                        balloon.currentRot = Math.sin(time * 2 + balloon.swayOffset) * 6; 
+                        const swayX = Math.sin(time * 1.5 + balloon.swayOffset) * 3;
+                        
+                        balloon.currentX = balloon.targetX + swayX;
+                        balloon.currentY = balloon.targetY;
+
+                        balloon.element.style.transform = `translate(calc(${balloon.currentX}px - 50%), calc(${balloon.currentY}px - 100%)) rotate(${balloon.currentRot}deg)`;
+                        updatePath(balloon.pathElement, balloon.originX, balloon.originY, balloon.currentX, balloon.currentY, windBend);
+                        break;
+
+                    case 'falling':
+                        balloon.fallProgress += 0.08;
+                        if (balloon.fallProgress >= 1) {
+                            balloon.element.remove();
+                            balloon.pathElement.remove();
+                            balloon.state = 'dead';
+                            activeBalloons.splice(i, 1);
+                            continue;
+                        }
+
+                        const fallT = easeInCubic(balloon.fallProgress);
+                        balloon.currentX = balloon.startX + (balloon.originX - balloon.startX) * fallT;
+                        balloon.currentY = balloon.startY + (balloon.originY - balloon.startY) * fallT;
+                        
+                        balloon.element.style.transform = `translate(calc(${balloon.currentX}px - 50%), calc(${balloon.currentY}px - 100%)) rotate(${balloon.currentRot}deg)`;
+                        updatePath(balloon.pathElement, balloon.originX, balloon.originY, balloon.currentX, balloon.currentY, 0);
+                        break;
+
+                    case 'success_retracting':
+                        // 稍微调慢了收缩的速度
+                        balloon.retractProgress += 0.05; 
+                        if (balloon.retractProgress >= 1) {
+                            balloon.pathElement.remove();
+                            balloon.state = 'hovering'; 
+                            continue;
+                        }
+                        
+                        const retractY = balloon.originY + (balloon.currentY - balloon.originY) * balloon.retractProgress;
+                        const retractX = balloon.originX + (balloon.currentX - balloon.originX) * balloon.retractProgress;
+                        
+                        updatePath(balloon.pathElement, retractX, retractY, balloon.currentX, balloon.currentY, windBend * (1 - balloon.retractProgress));
+                        
+                        balloon.currentRot = Math.sin(time * 2 + balloon.swayOffset) * 6;
+                        balloon.currentX = balloon.targetX + Math.sin(time * 1.5 + balloon.swayOffset) * 3;
+                        balloon.element.style.transform = `translate(calc(${balloon.currentX}px - 50%), calc(${balloon.currentY}px - 100%)) rotate(${balloon.currentRot}deg)`;
+                        break;
+                    
+                    case 'hovering':
+                        balloon.element.style.transform = `translate(calc(${balloon.currentX}px - 50%), calc(${balloon.currentY}px - 100%)) rotate(${balloon.currentRot}deg)`;
+                        break;
+
+                    case 'blowing_away':
+                        balloon.velX += 0.03; 
+                        balloon.velX *= 0.98; 
+                        
+                        balloon.velY += Math.cos(time * 3 + balloon.swayOffset) * 0.03;
+                        balloon.velY *= 0.95;
+
+                        balloon.currentX += balloon.velX;
+                        balloon.currentY += balloon.velY;
+                        balloon.currentRot += balloon.rotVel;
+                        
+                        balloon.opacity -= 0.007; 
+
+                        if (balloon.opacity <= 0) {
+                            balloon.element.remove();
+                            balloon.state = 'dead';
+                            activeBalloons.splice(i, 1);
+                            continue;
+                        }
+
+                        const blurAmount = (1 - balloon.opacity) * 6; 
+                        balloon.element.style.transform = `translate(calc(${balloon.currentX}px - 50%), calc(${balloon.currentY}px - 100%)) rotate(${balloon.currentRot}deg)`;
+                        balloon.element.style.opacity = balloon.opacity;
+                        balloon.element.style.filter = `blur(${blurAmount}px)`;
+                        break;
+                }
+            }
+
+            // === 游戏阶段时序推进 ===
+
+            if (gameState === 'waiting_to_rise') {
+                const allRisen = activeBalloons.every(b => b.state === 'swaying' || b.state === 'dead');
+                if (allRisen && activeBalloons.length > 0) {
+                    gameState = 'waiting_to_retract'; 
+                    
+                    // 增加 1 秒的停顿，然后再触发收线
+                    setTimeout(() => {
+                        gameState = 'retracting';
+                        activeBalloons.forEach(balloon => {
+                            if(balloon.state === 'swaying') {
+                                balloon.state = 'success_retracting';
+                                balloon.retractProgress = 0;
+                            }
+                        });
+                    }, 1000);
+                }
+            } 
+            else if (gameState === 'retracting') {
+                const allRetracted = activeBalloons.every(b => b.state === 'hovering' || b.state === 'dead');
+                if (allRetracted && activeBalloons.length > 0) {
+                    gameState = 'hovering'; 
+                    
+                    setTimeout(() => {
+                        gameState = 'blowing';
+                        activeBalloons.forEach(balloon => {
+                            if(balloon.state === 'hovering') {
+                                balloon.state = 'blowing_away';
+                                balloon.velX = 1.5 + Math.random(); 
+                                balloon.velY = (Math.random() - 0.5) * 1.5; 
+                                balloon.rotVel = (Math.random() - 0.5) * 3; 
+                            }
+                        });
+                        
+                        targetPoemContainer.classList.add('fade-out');
+
+                        setTimeout(() => {
+                            loadNextPoem();
+                        }, 3500);
+
+                    }, 1500);
+                }
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updatePath(pathEl, startX, startY, endX, endY, bendAmount) {
+            if(!pathEl) return;
+            const midX = (startX + endX) / 2 + bendAmount;
+            const midY = (startY + endY) / 2;
+            const d = `M ${startX} ${startY} Q ${midX} ${midY} ${endX} ${endY}`;
+            pathEl.setAttribute('d', d);
+        }
+    </script>
+</body>
+</html>
