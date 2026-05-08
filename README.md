@@ -18,3 +18,8 @@ Poetic Typewriter is a skeuomorphic typing toy rebuilt from a single-file protot
 ## Deployment
 - GitHub Pages deployment is prepared with `.github/workflows/deploy.yml` and Vite `base: '/PoeticTypewriter/'`.<br/>**GitHub Pages 部署已通过 `.github/workflows/deploy.yml` 和 Vite 的 `base: '/PoeticTypewriter/'` 配置完成准备。**
 - In the GitHub repository settings, switch `Settings -> Pages -> Source` to `GitHub Actions` before the first production deployment.<br/>**首次正式部署前，请在 GitHub 仓库中将 `Settings -> Pages -> Source` 切换为 `GitHub Actions`。**
+## Documentation
+- Internal project notes are indexed in `docs/INDEX.md`.<br/>**项目内部文档入口整理在 `docs/INDEX.md`。**
+- Long-lived project knowledge is recorded in `docs/PROJECT_KNOWLEDGE.md`.<br/>**项目长期认知记录在 `docs/PROJECT_KNOWLEDGE.md`。**
+- Session lessons and refactor notes are recorded in `docs/SESSION_NOTES_2026-05-08.md`.<br/>**本次会话中的经验、教训和重构思考记录在 `docs/SESSION_NOTES_2026-05-08.md`。**
+- Global reusable workflow and methodology references are described in `docs/GLOBAL_DOCS_REFERENCE.md`.<br/>**可复用的全局工作流与方法论引用方式见 `docs/GLOBAL_DOCS_REFERENCE.md`。**
