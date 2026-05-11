@@ -149,7 +149,8 @@ body {
 
 .challenge-stats-pill,
 .challenge-stats-progress,
-.challenge-stats-status {
+.challenge-stats-status,
+.challenge-stats-eligibility {
   font-family: 'Special Elite', monospace;
   font-size: 0.72rem;
   letter-spacing: 0.18em;
@@ -165,8 +166,15 @@ body {
 }
 
 .challenge-stats-progress,
-.challenge-stats-status {
+.challenge-stats-status,
+.challenge-stats-eligibility {
   color: rgba(245, 236, 223, 0.78);
+}
+
+.challenge-stats-eligibility {
+  border: 1px solid rgba(245, 236, 223, 0.18);
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
 }
 
 .challenge-stats-grid {
@@ -220,6 +228,21 @@ body {
 
 #challenge-stats-panel[data-validation-status='rejected'] .challenge-stats-status {
   color: #ff9b91;
+}
+
+#challenge-stats-panel[data-leaderboard-eligible='true'] .challenge-stats-eligibility {
+  border-color: rgba(158, 227, 163, 0.32);
+  color: #9ee3a3;
+}
+
+#challenge-stats-panel[data-leaderboard-eligible='false'] .challenge-stats-eligibility {
+  border-color: rgba(255, 193, 145, 0.28);
+  color: #ffc191;
+}
+
+#challenge-stats-panel[data-leaderboard-eligible='pending'] .challenge-stats-eligibility {
+  border-color: rgba(245, 236, 223, 0.16);
+  color: rgba(245, 236, 223, 0.72);
 }
 
 @media (max-width: 900px) {

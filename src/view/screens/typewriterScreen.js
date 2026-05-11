@@ -10,6 +10,7 @@ export function renderTypewriterScreen() {
               <span id="challenge-stats-mode" class="challenge-stats-pill">Daily Challenge</span>
               <span id="challenge-stats-progress" class="challenge-stats-progress">0/0</span>
               <span id="challenge-stats-status" class="challenge-stats-status">loading</span>
+              <span id="challenge-stats-eligibility" class="challenge-stats-eligibility">Checking rank status</span>
             </div>
             <div class="challenge-stats-grid">
               <article class="challenge-stats-card">

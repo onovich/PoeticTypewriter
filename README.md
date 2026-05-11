@@ -23,7 +23,7 @@ Poetic Typewriter is a skeuomorphic typing toy rebuilt from a single-file protot
 - Public frontend env vars belong in `.env.local`; see `.env.example` for the supported keys.<br/>**前端公开环境变量应放在 `.env.local` 中；支持的键见 `.env.example`。**
 - At runtime, a debug bridge is exposed as `window.__POETIC_TYPEWRITER__`, which surfaces the current mode and challenge snapshot for CLI or DevTools inspection.<br/>**运行时会暴露 `window.__POETIC_TYPEWRITER__` 调试桥，可用于在 CLI 或 DevTools 中查看当前模式和挑战快照。**
 - Daily mode also updates `document.title` with progress and recent result, and it can emit compact runtime logs when `VITE_ENABLE_RUNTIME_LOGS=true`.<br/>**每日挑战模式还会用 `document.title` 反映当前进度与最近成绩，并可在 `VITE_ENABLE_RUNTIME_LOGS=true` 时输出精简运行时日志。**
-- Daily mode now renders an in-page stats panel for recent CPS, daily best, all-time best, and both ranks, with status copy for accepted, suspicious, and rejected runs.<br/>**每日挑战模式现在还会在页面内直接显示最近字速、当日最佳、历史最佳和两个排名，并针对 accepted、suspicious、rejected 三种结果给出状态提示。**
+- Daily mode now renders an in-page stats panel for recent CPS, daily best, all-time best, both ranks, and explicit leaderboard eligibility, with status copy for accepted, suspicious, and rejected runs.<br/>**每日挑战模式现在还会在页面内直接显示最近字速、当日最佳、历史最佳、两个排名以及明确的榜单资格状态，并针对 accepted、suspicious、rejected 三种结果给出状态提示。**
 - The daily challenge contract now also exposes explicit leaderboard eligibility for each completed run, so UI state does not need to infer rankability from status strings alone.<br/>**每日挑战完成接口现在还会显式返回本次成绩是否具备榜单资格，前端不必再只靠状态字符串去推断是否可参与排名。**
 ## Deployment
 - GitHub Pages deployment is prepared with `.github/workflows/deploy.yml` and Vite `base: '/PoeticTypewriter/'`.<br/>**GitHub Pages 部署已通过 `.github/workflows/deploy.yml` 和 Vite 的 `base: '/PoeticTypewriter/'` 配置完成准备。**

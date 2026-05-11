@@ -93,21 +93,33 @@ function formatStatusLabel(snapshot) {
   return (snapshot.status || 'idle').replace(/-/g, ' ');
 }
 
+function formatLeaderboardEligibility(snapshot) {
+  if (snapshot.stats.leaderboardEligible === true) {
+    return 'Ranked run';
+  }
+
+  if (snapshot.stats.leaderboardEligible === false) {
+    return 'Not ranked';
+  }
+
+  return 'Rank status pending';
+}
+
 function buildStatsNote(snapshot) {
   if (snapshot.error?.message) {
     return snapshot.error.message;
   }
 
-  if (snapshot.stats.validationStatus === 'suspicious') {
+  if (snapshot.stats.leaderboardEligible === true) {
+    return 'Latest run is leaderboard-eligible. Stats refreshed from the server.';
+  }
+
+  if (snapshot.stats.validationStatus === 'suspicious' && snapshot.stats.leaderboardEligible === false) {
     return 'Flagged as suspicious. Progress kept, rankings unchanged.';
   }
 
-  if (snapshot.stats.validationStatus === 'rejected') {
+  if (snapshot.stats.validationStatus === 'rejected' && snapshot.stats.leaderboardEligible === false) {
     return 'Run rejected by server validation.';
-  }
-
-  if (snapshot.stats.validationStatus === 'accepted') {
-    return 'Latest run accepted. Leaderboard stats refreshed.';
   }
 
   if (snapshot.status === 'awaiting-first-input') {
@@ -138,6 +150,7 @@ function attachChallengeStatsPanel(runtime, rootElement) {
   const modeElement = panel.querySelector('#challenge-stats-mode');
   const progressElement = panel.querySelector('#challenge-stats-progress');
   const statusElement = panel.querySelector('#challenge-stats-status');
+  const eligibilityElement = panel.querySelector('#challenge-stats-eligibility');
   const recentElement = panel.querySelector('#challenge-stats-recent');
   const dailyBestElement = panel.querySelector('#challenge-stats-daily-best');
   const dailyRankElement = panel.querySelector('#challenge-stats-daily-rank');
@@ -156,12 +169,15 @@ function attachChallengeStatsPanel(runtime, rootElement) {
     modeElement.textContent = 'Daily Challenge';
     progressElement.textContent = getDailyProgressLabel(snapshot);
     statusElement.textContent = formatStatusLabel(snapshot);
+    eligibilityElement.textContent = formatLeaderboardEligibility(snapshot);
     recentElement.textContent = formatCpsValue(snapshot.stats.recentCps);
     dailyBestElement.textContent = formatCpsValue(snapshot.stats.dailyBestCps);
     dailyRankElement.textContent = formatRankValue(snapshot.stats.dailyRank);
     allTimeBestElement.textContent = formatCpsValue(snapshot.stats.allTimeBestCps);
     allTimeRankElement.textContent = formatRankValue(snapshot.stats.allTimeRank);
     noteElement.textContent = buildStatsNote(snapshot);
+    panel.dataset.leaderboardEligible =
+      snapshot.stats.leaderboardEligible === null ? 'pending' : String(snapshot.stats.leaderboardEligible);
     panel.dataset.validationStatus = snapshot.stats.validationStatus ?? 'idle';
   });
 }
