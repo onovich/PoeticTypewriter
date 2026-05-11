@@ -407,6 +407,10 @@ export async function handleCompleteRun(request, env) {
     suspiciousFlags.push('high_submission_rate');
   }
 
+  if (run.started_ip_hash && playerContext.ipHash && run.started_ip_hash !== playerContext.ipHash) {
+    suspiciousFlags.push('ip_changed_during_run');
+  }
+
   let validationStatus = 'accepted';
   if (cps >= config.hardCpsLimit) {
     suspiciousFlags.push('hard_cps_limit');

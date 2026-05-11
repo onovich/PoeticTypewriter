@@ -159,7 +159,7 @@ export async function recordRunStart(db, runInput) {
 export async function getRunByTokenHash(db, tokenHash) {
   return db
     .prepare(
-      'SELECT id, player_id, challenge_id, item_id, started_at, validation_status FROM runs WHERE run_token_hash = ?',
+      'SELECT id, player_id, challenge_id, item_id, started_at, started_ip_hash, validation_status FROM runs WHERE run_token_hash = ?',
     )
     .bind(tokenHash)
     .first();
