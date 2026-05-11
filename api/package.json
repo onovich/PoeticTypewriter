@@ -9,12 +9,12 @@
     "check": "node -e \"Promise.all([import('./src/index.js'), import('./src/challengeGeneration.js')]).catch((error) => { console.error(error); process.exit(1); })\"",
     "db:bootstrap:local": "node scripts/bootstrapLocalDailyChallenge.js",
     "db:bootstrap:remote": "node scripts/bootstrapLocalDailyChallenge.js --remote",
-    "db:migrate:local": "wrangler d1 migrations apply poetic-typewriter --local",
-    "db:migrate:remote": "wrangler d1 migrations apply poetic-typewriter --remote",
-    "dev": "wrangler dev",
+    "db:migrate:local": "npx --yes wrangler d1 migrations apply poetic-typewriter --local",
+    "db:migrate:remote": "npx --yes wrangler d1 migrations apply poetic-typewriter --remote",
+    "dev": "npx --yes wrangler dev",
     "smoke:local": "node scripts/smokeTestLocalApi.js",
     "smoke:rate-limit": "node scripts/smokeTestLocalRateLimit.js",
-    "deploy": "wrangler deploy"
+    "deploy": "npx --yes wrangler deploy"
   },
   "devDependencies": {
     "wrangler": "^4.90.0"

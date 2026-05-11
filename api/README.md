@@ -63,6 +63,7 @@
 - `POST /v1/runs/complete`
 
 其中 `smoke:rate-limit` 会连续请求 6 次 `POST /v1/runs/start`，确认第 6 次返回 `429 run_start_rate_limited`。
+它还会额外模拟“同一 IP 下连续创建多个匿名玩家”的场景，确认第 13 次返回 `429 run_start_ip_rate_limited`。
 
 ## 本地开发环境
 
@@ -91,6 +92,8 @@
 - `HARD_CPS_LIMIT`：硬拒绝字速阈值
 - `RUN_START_LIMIT_MAX`：单玩家近窗内允许的 `run start` 最大次数，默认 5
 - `RUN_START_LIMIT_WINDOW_MS`：单玩家 `run start` 限流窗口，默认 60000ms
+- `RUN_START_IP_LIMIT_MAX`：单 IP 近窗内允许的 `run start` 最大次数，默认 12
+- `RUN_START_IP_LIMIT_WINDOW_MS`：单 IP `run start` 限流窗口，默认 60000ms
 - `SUSPICIOUS_CPS_LIMIT`：可疑字速阈值
 - `SUSPICIOUS_SAMPLE_VARIANCE_MIN`：输入间隔过于平滑时的可疑阈值
 - `RUN_TOKEN_TTL_MS`：run token 过期时间，默认 300000ms

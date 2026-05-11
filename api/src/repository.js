@@ -117,10 +117,19 @@ export async function countRecentRunStartsByPlayer(db, playerId, startedAfterIso
   return Number(row?.count ?? 0);
 }
 
+export async function countRecentRunStartsByIp(db, startedIpHash, startedAfterIso) {
+  const row = await db
+    .prepare('SELECT COUNT(*) AS count FROM runs WHERE started_ip_hash = ? AND started_at >= ?')
+    .bind(startedIpHash, startedAfterIso)
+    .first();
+
+  return Number(row?.count ?? 0);
+}
+
 export async function recordRunStart(db, runInput) {
   await db
     .prepare(
-      'INSERT INTO runs (id, player_id, challenge_id, item_id, run_token_hash, started_at, validation_status, suspicious_flags) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO runs (id, player_id, challenge_id, item_id, run_token_hash, started_at, started_ip_hash, validation_status, suspicious_flags) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
     )
     .bind(
       crypto.randomUUID(),
@@ -129,6 +138,7 @@ export async function recordRunStart(db, runInput) {
       runInput.itemId,
       runInput.tokenHash,
       runInput.startedAt,
+      runInput.startedIpHash,
       'started',
       '[]',
     )

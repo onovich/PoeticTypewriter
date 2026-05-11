@@ -2,6 +2,7 @@ import { buildPlayerCookie, PLAYER_COOKIE_NAME, readCookie } from './cookies.js'
 import { errorResponse, jsonResponse, readJson } from './http.js';
 import {
   advancePlayerProgress,
+  countRecentRunStartsByIp,
   countRecentRunStartsByPlayer,
   completeRun,
   getAllTimeBest,
@@ -34,10 +35,15 @@ function getNumberEnv(env, key, fallbackValue) {
 }
 
 function getRunConfig(env) {
+  const runStartLimitMax = getNumberEnv(env, 'RUN_START_LIMIT_MAX', 5);
+  const runStartLimitWindowMs = getNumberEnv(env, 'RUN_START_LIMIT_WINDOW_MS', 60_000);
+
   return {
     hardCpsLimit: getNumberEnv(env, 'HARD_CPS_LIMIT', 20),
-    runStartLimitMax: getNumberEnv(env, 'RUN_START_LIMIT_MAX', 5),
-    runStartLimitWindowMs: getNumberEnv(env, 'RUN_START_LIMIT_WINDOW_MS', 60_000),
+    runStartIpLimitMax: getNumberEnv(env, 'RUN_START_IP_LIMIT_MAX', 12),
+    runStartIpLimitWindowMs: getNumberEnv(env, 'RUN_START_IP_LIMIT_WINDOW_MS', runStartLimitWindowMs),
+    runStartLimitMax,
+    runStartLimitWindowMs,
     runTokenTtlMs: getNumberEnv(env, 'RUN_TOKEN_TTL_MS', 300_000),
     serverFloorToleranceMs: getNumberEnv(env, 'SERVER_FLOOR_TOLERANCE_MS', 250),
     suspiciousCpsLimit: getNumberEnv(env, 'SUSPICIOUS_CPS_LIMIT', 12),
@@ -105,6 +111,7 @@ async function resolvePlayerContext(request, env) {
 
   return {
     headers,
+    ipHash,
     player,
   };
 }
@@ -206,6 +213,27 @@ export async function handleStartRun(request, env) {
     });
   }
 
+  if (playerContext.ipHash) {
+    const recentRunStartIpCount = await countRecentRunStartsByIp(
+      env.DB,
+      playerContext.ipHash,
+      getIsoBeforeWindow(config.runStartIpLimitWindowMs),
+    );
+
+    if (recentRunStartIpCount >= config.runStartIpLimitMax) {
+      return errorResponse(
+        request,
+        env,
+        429,
+        'run_start_ip_rate_limited',
+        '当前网络环境的 run token 请求过于频繁，请稍后再试。',
+        {
+          headers: playerContext.headers,
+        },
+      );
+    }
+  }
+
   const issuedAtMs = Date.now();
   const expiresAtMs = issuedAtMs + config.runTokenTtlMs;
   const runToken = await createSignedRunToken(
@@ -225,6 +253,7 @@ export async function handleStartRun(request, env) {
     itemId,
     playerId: playerContext.player.id,
     startedAt: getNowIso(),
+    startedIpHash: playerContext.ipHash,
     tokenHash,
   });
 
