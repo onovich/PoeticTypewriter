@@ -16,6 +16,7 @@ Poetic Typewriter is a skeuomorphic typing toy rebuilt from a single-file protot
 - Start local development with `npm run dev`.<br/>**使用 `npm run dev` 启动本地开发。**
 - Build the production bundle with `npm run build`.<br/>**使用 `npm run build` 构建生产版本。**
 - Preview the built site locally with `npm run preview`.<br/>**使用 `npm run preview` 本地预览构建产物。**
+- Run `npm run smoke:browser:daily` to boot a local Worker + Vite pair and verify the daily challenge UI contract for accepted, suspicious, and rejected runs.<br/>**使用 `npm run smoke:browser:daily` 可自动拉起本地 Worker 与 Vite，并验证每日挑战 UI 在 accepted、suspicious、rejected 三种结果下的页面契约。**
 
 ## Runtime Modes
 - Free mode remains the default local experience and continues to use the bundled poem list.<br/>**自由模式仍然是默认本地体验，并继续使用前端内置的诗句列表。**

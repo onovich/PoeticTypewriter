@@ -96,6 +96,7 @@ Poetic Typewriter 是一个以“复古拟物打字机 + 气球化字符 + 短�
 - 每日挑战前端现已在页面内直接显示最近成绩、当日最佳、历史最佳、两个排名、明确的榜单资格状态，以及后端返回的可读原因标签，不再只依赖 `document.title` 或调试桥观察运行态。
 - 服务端轻量反作弊现已覆盖：run start 的玩家/IP 双层限流，以及 complete run 的短时高频提交、起跑与提交 IP 变化这两类 `suspicious` 标记。
 - `complete run` 返回体现已显式携带 `leaderboardEligible`，前端无需再仅凭 `validationStatus` 侧推榜单资格。
+- 仓库根目录现已加入浏览器 smoke 脚本，可本地自动拉起 Worker + Vite，并验证 daily 模式在 accepted、suspicious、rejected 三种结果下的 stats panel、title、eligibility 和 reason tags。
 - Web 前端代码默认可被浏览器看到，因此安全边界不能建立在“前端代码不暴露”之上。
 - API 地址可以是公开信息，但数据库密钥、签名密钥和管理员令牌不能进入前端。
 - 若仓库未来转为私有，免费 GitHub Pages 不再是长期可依赖的线上托管方案。
