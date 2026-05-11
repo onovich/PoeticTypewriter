@@ -105,6 +105,44 @@ function formatLeaderboardEligibility(snapshot) {
   return 'Rank status pending';
 }
 
+function formatSuspiciousFlag(flag) {
+  switch (flag) {
+    case 'elapsed_below_server_floor':
+      return 'Below server floor';
+    case 'expired_token':
+      return 'Expired token';
+    case 'hard_cps_limit':
+      return 'Hard CPS limit';
+    case 'high_cps':
+      return 'High CPS';
+    case 'high_submission_rate':
+      return 'High submission rate';
+    case 'uniform_input_sample':
+      return 'Uniform input sample';
+    default:
+      return flag.replace(/_/g, ' ');
+  }
+}
+
+function syncSuspiciousFlags(flagsElement, suspiciousFlags) {
+  const flags = Array.isArray(suspiciousFlags) ? suspiciousFlags.filter(Boolean) : [];
+  flagsElement.hidden = flags.length === 0;
+
+  if (flags.length === 0) {
+    flagsElement.replaceChildren();
+    return;
+  }
+
+  const chips = flags.map((flag) => {
+    const chip = document.createElement('span');
+    chip.className = 'challenge-stats-flag';
+    chip.textContent = formatSuspiciousFlag(flag);
+    return chip;
+  });
+
+  flagsElement.replaceChildren(...chips);
+}
+
 function buildStatsNote(snapshot) {
   if (snapshot.error?.message) {
     return snapshot.error.message;
@@ -156,6 +194,7 @@ function attachChallengeStatsPanel(runtime, rootElement) {
   const dailyRankElement = panel.querySelector('#challenge-stats-daily-rank');
   const allTimeBestElement = panel.querySelector('#challenge-stats-all-time-best');
   const allTimeRankElement = panel.querySelector('#challenge-stats-all-time-rank');
+  const flagsElement = panel.querySelector('#challenge-stats-flags');
   const noteElement = panel.querySelector('#challenge-stats-note');
 
   runtime.store.subscribe((snapshot) => {
@@ -175,6 +214,7 @@ function attachChallengeStatsPanel(runtime, rootElement) {
     dailyRankElement.textContent = formatRankValue(snapshot.stats.dailyRank);
     allTimeBestElement.textContent = formatCpsValue(snapshot.stats.allTimeBestCps);
     allTimeRankElement.textContent = formatRankValue(snapshot.stats.allTimeRank);
+    syncSuspiciousFlags(flagsElement, snapshot.stats.suspiciousFlags);
     noteElement.textContent = buildStatsNote(snapshot);
     panel.dataset.leaderboardEligible =
       snapshot.stats.leaderboardEligible === null ? 'pending' : String(snapshot.stats.leaderboardEligible);

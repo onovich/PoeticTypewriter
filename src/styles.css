@@ -218,6 +218,25 @@ body {
   min-height: 1.4em;
 }
 
+.challenge-stats-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.8rem;
+}
+
+.challenge-stats-flag {
+  border: 1px solid rgba(255, 244, 225, 0.14);
+  border-radius: 999px;
+  color: rgba(255, 244, 225, 0.88);
+  font-family: 'Special Elite', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  padding: 0.32rem 0.58rem;
+  text-transform: uppercase;
+  background: rgba(255, 244, 225, 0.05);
+}
+
 #challenge-stats-panel[data-validation-status='suspicious'] .challenge-stats-status {
   color: #ffd27a;
 }

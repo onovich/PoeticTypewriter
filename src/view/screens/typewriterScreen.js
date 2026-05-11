@@ -34,6 +34,7 @@ export function renderTypewriterScreen() {
                 <strong id="challenge-stats-all-time-rank" class="challenge-stats-value">--</strong>
               </article>
             </div>
+            <div id="challenge-stats-flags" class="challenge-stats-flags" hidden></div>
             <p id="challenge-stats-note" class="challenge-stats-note">Daily stats sync here once the run starts.</p>
           </section>
         </div>
