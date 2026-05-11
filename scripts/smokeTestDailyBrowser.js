@@ -1,5 +1,4 @@
 import { spawn, spawnSync } from 'node:child_process';
-import { once } from 'node:events';
 import path from 'node:path';
 import process from 'node:process';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -28,13 +27,14 @@ const SCENARIOS = [
     shouldAdvance: true,
   },
   {
-    delays: [420],
+    delays: [55, 85, 65, 95, 75],
     expectedEligibility: 'Not ranked',
-    expectedFlags: ['Uniform input sample'],
+    expectedFlags: ['High CPS'],
     expectedValidationStatus: 'suspicious',
     name: 'suspicious',
     noteIncludes: 'Flagged as suspicious',
     shouldAdvance: true,
+    unexpectedFlags: ['Hard CPS limit'],
   },
   {
     delays: [20],
@@ -109,6 +109,8 @@ function startCommand({ args, cwd, env, label }) {
     stdio: ['ignore', 'pipe', 'pipe'],
   });
 
+  child.expectedShutdown = false;
+
   child.stdout.on('data', (chunk) => {
     process.stdout.write(`[${label}] ${chunk}`);
   });
@@ -117,6 +119,10 @@ function startCommand({ args, cwd, env, label }) {
   });
 
   child.on('exit', (code) => {
+    if (child.expectedShutdown) {
+      return;
+    }
+
     if (code !== null && code !== 0) {
       process.stderr.write(`[${label}] exited with code ${code}\n`);
     }
@@ -152,6 +158,8 @@ function cleanupProcess(child) {
     return;
   }
 
+  child.expectedShutdown = true;
+
   if (process.platform === 'win32') {
     const taskKill = getTaskKillCommand();
     if (taskKill) {
@@ -163,6 +171,64 @@ function cleanupProcess(child) {
   }
 
   child.kill('SIGTERM');
+}
+
+function startWebServer({ apiBaseUrl, label, port }) {
+  return startCommand({
+    args: ['run', 'dev', '--', '--host', '127.0.0.1', '--port', String(port), '--strictPort'],
+    cwd: ROOT_DIR,
+    env: {
+      VITE_API_BASE_URL: apiBaseUrl,
+    },
+    label,
+  });
+}
+
+async function readPanelState(page) {
+  return page.evaluate(() => {
+    const text = (selector) => document.querySelector(selector)?.textContent?.trim() ?? null;
+    const panel = document.querySelector('#challenge-stats-panel');
+    const flags = Array.from(document.querySelectorAll('#challenge-stats-flags .challenge-stats-flag')).map((node) =>
+      node.textContent.trim(),
+    );
+
+    return {
+      allTimeBest: text('#challenge-stats-all-time-best'),
+      allTimeRank: text('#challenge-stats-all-time-rank'),
+      completedItems: window.__POETIC_TYPEWRITER__?.snapshot?.completedItems ?? null,
+      currentItemId: window.__POETIC_TYPEWRITER__?.snapshot?.currentItem?.itemId ?? null,
+      currentItemText: window.__POETIC_TYPEWRITER__?.snapshot?.currentItem?.text ?? null,
+      dataLeaderboardEligible: panel?.dataset.leaderboardEligible ?? null,
+      dataValidationStatus: panel?.dataset.validationStatus ?? null,
+      dailyBest: text('#challenge-stats-daily-best'),
+      dailyRank: text('#challenge-stats-daily-rank'),
+      eligibility: text('#challenge-stats-eligibility'),
+      flags,
+      note: text('#challenge-stats-note'),
+      panelHidden: panel?.hidden ?? null,
+      progress: text('#challenge-stats-progress'),
+      recent: text('#challenge-stats-recent'),
+      statusLabel: text('#challenge-stats-status'),
+      summary: window.__POETIC_TYPEWRITER__?.summary ?? null,
+      title: document.title,
+    };
+  });
+}
+
+function assertDailyReadyState(initialState) {
+  assert(initialState.panelHidden === false, 'daily ready: stats panel should be visible');
+  assert(initialState.title.includes('awaiting-first-input'), 'daily ready: title missing awaiting-first-input');
+  assert(initialState.statusLabel === 'awaiting first input', 'daily ready: wrong status label');
+  assert(initialState.dataLeaderboardEligible === 'pending', 'daily ready: leaderboard state should be pending');
+  assert(initialState.dataValidationStatus === 'idle', 'daily ready: validation status should be idle');
+  assert(initialState.eligibility === 'Rank status pending', 'daily ready: wrong eligibility label');
+  assert(initialState.note === 'The timer starts on the first accepted input.', 'daily ready: wrong note');
+  assert(initialState.recent === '--', 'daily ready: recent should be empty');
+  assert(initialState.dailyBest === '--', 'daily ready: daily best should be empty');
+  assert(initialState.dailyRank === '--', 'daily ready: daily rank should be empty');
+  assert(initialState.allTimeBest === '--', 'daily ready: all-time best should be empty');
+  assert(initialState.allTimeRank === '--', 'daily ready: all-time rank should be empty');
+  assert(initialState.flags.length === 0, 'daily ready: should not show suspicious flags');
 }
 
 async function waitForDailyReady(page) {
@@ -186,13 +252,7 @@ async function waitForDailyReady(page) {
     { timeout: STEP_TIMEOUT_MS },
   );
 
-  return page.evaluate(() => ({
-    completedItems: window.__POETIC_TYPEWRITER__.snapshot.completedItems,
-    currentItemId: window.__POETIC_TYPEWRITER__.snapshot.currentItem?.itemId ?? null,
-    currentItemText: window.__POETIC_TYPEWRITER__.snapshot.currentItem?.text ?? null,
-    progress: window.__POETIC_TYPEWRITER__.summary.progress,
-    title: document.title,
-  }));
+  return readPanelState(page);
 }
 
 async function typeText(page, text, delays) {
@@ -236,26 +296,42 @@ async function waitForOutcome(page, expectedValidationStatus) {
     { timeout: STEP_TIMEOUT_MS },
   );
 
-  return page.evaluate(() => {
-    const text = (selector) => document.querySelector(selector)?.textContent?.trim() ?? null;
-    const flags = Array.from(document.querySelectorAll('#challenge-stats-flags .challenge-stats-flag')).map((node) =>
-      node.textContent.trim(),
-    );
-    const panel = document.querySelector('#challenge-stats-panel');
+  return readPanelState(page);
+}
 
-    return {
-      completedItems: window.__POETIC_TYPEWRITER__.snapshot.completedItems,
-      currentItemId: window.__POETIC_TYPEWRITER__.snapshot.currentItem?.itemId ?? null,
-      dataLeaderboardEligible: panel?.dataset.leaderboardEligible ?? null,
-      dataValidationStatus: panel?.dataset.validationStatus ?? null,
-      eligibility: text('#challenge-stats-eligibility'),
-      flags,
-      note: text('#challenge-stats-note'),
-      progress: text('#challenge-stats-progress'),
-      summary: window.__POETIC_TYPEWRITER__.summary,
-      title: document.title,
-    };
+async function waitForFallbackFree(page) {
+  await page.route(`${API_BASE_URL}/v1/challenge/today`, async (route) => {
+    await route.abort('failed');
   });
+
+  await page.goto(WEB_BASE_URL, {
+    waitUntil: 'domcontentloaded',
+  });
+
+  await page.waitForFunction(
+    () => {
+      const bridge = window.__POETIC_TYPEWRITER__;
+      const panel = document.querySelector('#challenge-stats-panel');
+
+      return (
+        bridge?.mode === 'free' &&
+        bridge.summary?.mode === 'free' &&
+        bridge.summary?.status === 'fallback-free' &&
+        document.title === 'Poetic Typewriter | Free' &&
+        panel?.hidden === true
+      );
+    },
+    undefined,
+    { timeout: STEP_TIMEOUT_MS },
+  );
+
+  return page.evaluate(() => ({
+    bridgeMode: window.__POETIC_TYPEWRITER__?.mode ?? null,
+    panelHidden: document.querySelector('#challenge-stats-panel')?.hidden ?? null,
+    snapshotMode: window.__POETIC_TYPEWRITER__?.snapshot?.mode ?? null,
+    summary: window.__POETIC_TYPEWRITER__?.summary ?? null,
+    title: document.title,
+  }));
 }
 
 function assertScenarioResult(initialState, scenario, result) {
@@ -274,6 +350,10 @@ function assertScenarioResult(initialState, scenario, result) {
 
   for (const expectedFlag of scenario.expectedFlags) {
     assert(result.flags.includes(expectedFlag), `${scenario.name}: missing flag ${expectedFlag}`);
+  }
+
+  for (const unexpectedFlag of scenario.unexpectedFlags ?? []) {
+    assert(!result.flags.includes(unexpectedFlag), `${scenario.name}: unexpected flag ${unexpectedFlag}`);
   }
 
   if (scenario.expectedFlags.length === 0) {
@@ -295,6 +375,7 @@ async function runScenario(browser, scenario) {
 
   try {
     const initialState = await waitForDailyReady(page);
+    assertDailyReadyState(initialState);
     await typeText(page, initialState.currentItemText, scenario.delays);
     const result = await waitForOutcome(page, scenario.expectedValidationStatus);
 
@@ -309,6 +390,32 @@ async function runScenario(browser, scenario) {
       note: result.note,
       progressAfter: result.progress,
       progressBefore: initialState.progress,
+      title: result.title,
+    };
+  } finally {
+    await context.close();
+  }
+}
+
+async function runFallbackFreeScenario(browser) {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  try {
+    const result = await waitForFallbackFree(page);
+
+    assert(result.bridgeMode === 'free', 'fallback free: bridge mode should be free');
+    assert(result.snapshotMode === 'free', 'fallback free: snapshot mode should be free');
+    assert(result.summary?.status === 'fallback-free', 'fallback free: wrong runtime status');
+    assert(result.summary?.progress === null, 'fallback free: progress should be cleared');
+    assert(result.panelHidden === true, 'fallback free: stats panel should be hidden');
+    assert(result.title === 'Poetic Typewriter | Free', 'fallback free: wrong title');
+
+    return {
+      bridgeMode: result.bridgeMode,
+      name: 'fallback-free',
+      panelHidden: result.panelHidden,
+      status: result.summary?.status ?? null,
       title: result.title,
     };
   } finally {
@@ -335,13 +442,10 @@ async function main() {
 
     await waitForUrl(`${API_BASE_URL}/health`, SERVER_BOOT_TIMEOUT_MS);
 
-    const webServer = startCommand({
-      args: ['run', 'dev', '--', '--host', '127.0.0.1', '--port', String(WEB_PORT), '--strictPort'],
-      cwd: ROOT_DIR,
-      env: {
-        VITE_API_BASE_URL: API_BASE_URL,
-      },
+    const webServer = startWebServer({
+      apiBaseUrl: API_BASE_URL,
       label: 'web',
+      port: WEB_PORT,
     });
     runningChildren.push(webServer);
 
@@ -356,7 +460,9 @@ async function main() {
       results.push(await runScenario(browser, scenario));
     }
 
-    console.log(JSON.stringify({ scenarios: results }, null, 2));
+    const fallbackResult = await runFallbackFreeScenario(browser);
+
+    console.log(JSON.stringify({ fallback: fallbackResult, scenarios: results }, null, 2));
   } finally {
     if (browser) {
       await browser.close();
