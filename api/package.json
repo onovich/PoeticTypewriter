@@ -13,6 +13,7 @@
     "db:migrate:remote": "wrangler d1 migrations apply poetic-typewriter --remote",
     "dev": "wrangler dev",
     "smoke:local": "node scripts/smokeTestLocalApi.js",
+    "smoke:rate-limit": "node scripts/smokeTestLocalRateLimit.js",
     "deploy": "wrangler deploy"
   },
   "devDependencies": {

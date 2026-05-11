@@ -2,6 +2,7 @@ import { buildPlayerCookie, PLAYER_COOKIE_NAME, readCookie } from './cookies.js'
 import { errorResponse, jsonResponse, readJson } from './http.js';
 import {
   advancePlayerProgress,
+  countRecentRunStartsByPlayer,
   completeRun,
   getAllTimeBest,
   getAllTimeRank,
@@ -35,11 +36,17 @@ function getNumberEnv(env, key, fallbackValue) {
 function getRunConfig(env) {
   return {
     hardCpsLimit: getNumberEnv(env, 'HARD_CPS_LIMIT', 20),
+    runStartLimitMax: getNumberEnv(env, 'RUN_START_LIMIT_MAX', 5),
+    runStartLimitWindowMs: getNumberEnv(env, 'RUN_START_LIMIT_WINDOW_MS', 60_000),
     runTokenTtlMs: getNumberEnv(env, 'RUN_TOKEN_TTL_MS', 300_000),
     serverFloorToleranceMs: getNumberEnv(env, 'SERVER_FLOOR_TOLERANCE_MS', 250),
     suspiciousCpsLimit: getNumberEnv(env, 'SUSPICIOUS_CPS_LIMIT', 12),
     suspiciousSampleVarianceMin: getNumberEnv(env, 'SUSPICIOUS_SAMPLE_VARIANCE_MIN', 12),
   };
+}
+
+function getIsoBeforeWindow(windowMs) {
+  return new Date(Date.now() - windowMs).toISOString();
 }
 
 function clampPositiveInteger(value, fallbackValue = 0) {
@@ -187,6 +194,18 @@ export async function handleStartRun(request, env) {
   }
 
   const config = getRunConfig(env);
+  const recentRunStartCount = await countRecentRunStartsByPlayer(
+    env.DB,
+    playerContext.player.id,
+    getIsoBeforeWindow(config.runStartLimitWindowMs),
+  );
+
+  if (recentRunStartCount >= config.runStartLimitMax) {
+    return errorResponse(request, env, 429, 'run_start_rate_limited', 'run token 请求过于频繁，请稍后再试。', {
+      headers: playerContext.headers,
+    });
+  }
+
   const issuedAtMs = Date.now();
   const expiresAtMs = issuedAtMs + config.runTokenTtlMs;
   const runToken = await createSignedRunToken(

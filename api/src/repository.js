@@ -108,6 +108,15 @@ export async function getAllTimeBest(db, playerId) {
   return row ?? defaultAllTimeBest(playerId);
 }
 
+export async function countRecentRunStartsByPlayer(db, playerId, startedAfterIso) {
+  const row = await db
+    .prepare('SELECT COUNT(*) AS count FROM runs WHERE player_id = ? AND started_at >= ?')
+    .bind(playerId, startedAfterIso)
+    .first();
+
+  return Number(row?.count ?? 0);
+}
+
 export async function recordRunStart(db, runInput) {
   await db
     .prepare(

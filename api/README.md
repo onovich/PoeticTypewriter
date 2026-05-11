@@ -53,6 +53,7 @@
 如果本地 Worker 已经启动，还可以直接跑一次 CLI smoke test：
 
 - `npm run smoke:local`
+- `npm run smoke:rate-limit`
 
 它会顺序验证：
 
@@ -60,6 +61,8 @@
 - `GET /v1/challenge/today`
 - `POST /v1/runs/start`
 - `POST /v1/runs/complete`
+
+其中 `smoke:rate-limit` 会连续请求 6 次 `POST /v1/runs/start`，确认第 6 次返回 `429 run_start_rate_limited`。
 
 ## 本地开发环境
 
@@ -86,6 +89,8 @@
 - `RUN_TOKEN_SECRET`：run token 的签名密钥，必须使用 secret 注入，不要写入源码
 - `COOKIE_SECURE`：本地开发若走 http，可临时设为 `false`
 - `HARD_CPS_LIMIT`：硬拒绝字速阈值
+- `RUN_START_LIMIT_MAX`：单玩家近窗内允许的 `run start` 最大次数，默认 5
+- `RUN_START_LIMIT_WINDOW_MS`：单玩家 `run start` 限流窗口，默认 60000ms
 - `SUSPICIOUS_CPS_LIMIT`：可疑字速阈值
 - `SUSPICIOUS_SAMPLE_VARIANCE_MIN`：输入间隔过于平滑时的可疑阈值
 - `RUN_TOKEN_TTL_MS`：run token 过期时间，默认 300000ms
