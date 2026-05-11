@@ -1,6 +1,8 @@
+import { FREE_MODE_POEMS } from '../../data/freePoems.js';
 import { TypewriterEngine } from '../engine/typewriterEngine.js';
+import { TypingRunTracker } from '../stats/typingRunTracker.js';
 
-export function createTypewriterApp(rootElement) {
+export function createTypewriterApp(rootElement, options = {}) {
   const elements = {
     paperSlotArea: rootElement.querySelector('#paper-slot-area'),
     balloonsContainer: rootElement.querySelector('#balloons-container'),
@@ -9,8 +11,12 @@ export function createTypewriterApp(rootElement) {
     keyboardKeys: Array.from(rootElement.querySelectorAll('.skeuo-key')),
   };
 
-  const engine = new TypewriterEngine(elements);
+  const engine = new TypewriterEngine(elements, {
+    poems: options.poems ?? FREE_MODE_POEMS,
+  });
+  const tracker = new TypingRunTracker();
   let animationFrameId = 0;
+  let lastCompletedRun = null;
 
   const highlightVisualKey = (key) => {
     let searchKey = key.toLowerCase();
@@ -30,8 +36,27 @@ export function createTypewriterApp(rootElement) {
     window.setTimeout(() => keyElement.classList.remove('active-state'), 100);
   };
 
+  const processInput = (key) => {
+    const inputResult = engine.handleInput(key);
+    const trackerSnapshot = tracker.recordInput(inputResult);
+
+    options.onInputProcessed?.({
+      inputResult,
+      trackerSnapshot,
+    });
+
+    if (!inputResult.poemCompleted) {
+      return inputResult;
+    }
+
+    lastCompletedRun = tracker.finishRun();
+    options.onRunCompleted?.(lastCompletedRun);
+
+    return inputResult;
+  };
+
   const onKeyDown = (event) => {
-    engine.handleInput(event.key);
+    processInput(event.key);
     highlightVisualKey(event.key);
   };
 
@@ -39,7 +64,7 @@ export function createTypewriterApp(rootElement) {
     const triggerKey = (event) => {
       event.preventDefault();
       const key = keyElement.getAttribute('data-key');
-      engine.handleInput(key);
+      processInput(key);
       keyElement.classList.add('active-state');
       window.setTimeout(() => keyElement.classList.remove('active-state'), 100);
     };
@@ -60,6 +85,16 @@ export function createTypewriterApp(rootElement) {
   frameLoop();
 
   return {
+    getLastCompletedRun() {
+      return lastCompletedRun;
+    },
+    setPoems(poems, options = {}) {
+      engine.setPoems(poems, { resetIndex: options.resetIndex });
+
+      if (options.loadImmediately) {
+        engine.loadNextPoem();
+      }
+    },
     dispose() {
       window.removeEventListener('keydown', onKeyDown);
       pointerHandlers.forEach(({ keyElement, triggerKey }) => {

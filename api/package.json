@@ -1,0 +1,21 @@
+{
+  "name": "poetic-typewriter-api",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "challenge:preview": "node scripts/generateDailyChallengeSql.js --preview",
+    "challenge:sql": "node scripts/generateDailyChallengeSql.js",
+    "check": "node -e \"Promise.all([import('./src/index.js'), import('./src/challengeGeneration.js')]).catch((error) => { console.error(error); process.exit(1); })\"",
+    "db:bootstrap:local": "node scripts/bootstrapLocalDailyChallenge.js",
+    "db:bootstrap:remote": "node scripts/bootstrapLocalDailyChallenge.js --remote",
+    "db:migrate:local": "wrangler d1 migrations apply poetic-typewriter --local",
+    "db:migrate:remote": "wrangler d1 migrations apply poetic-typewriter --remote",
+    "dev": "wrangler dev",
+    "smoke:local": "node scripts/smokeTestLocalApi.js",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.90.0"
+  }
+}

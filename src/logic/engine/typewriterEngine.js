@@ -1,11 +1,11 @@
 import { GAME_PHASES, TIMINGS } from '../../data/config.js';
-import { POEMS } from '../../data/poems.js';
 import { easeInCubic, easeOutQuad } from './easing.js';
 import { PretextEngine } from './pretextEngine.js';
 
 export class TypewriterEngine {
-  constructor(elements) {
+  constructor(elements, options = {}) {
     this.elements = elements;
+    this.poems = [];
     this.pretextEngine = new PretextEngine();
     this.currentPoemIndex = 0;
     this.currentPoem = '';
@@ -16,13 +16,36 @@ export class TypewriterEngine {
     this.gameState = GAME_PHASES.TYPING;
     this.timers = new Set();
     this.phaseTransitionScheduled = false;
+    this.setPoems(options.poems, { resetIndex: true });
+  }
+
+  setPoems(poems, options = {}) {
+    this.poems = Array.isArray(poems) ? poems.filter(Boolean) : [];
+
+    if (options.resetIndex !== false) {
+      this.currentPoemIndex = 0;
+    }
   }
 
   loadNextPoem() {
     this.clearTimers();
     this.phaseTransitionScheduled = false;
 
-    this.currentPoem = POEMS[this.currentPoemIndex];
+    if (this.poems.length === 0) {
+      this.currentPoem = '';
+      this.pretextEngine.init(this.elements.targetPoemContainer, this.currentPoem);
+      this.elements.targetPoemContainer.classList.remove('fade-out');
+      this.typedIndex = 0;
+      this.typedText = '';
+      this.isInputLocked = false;
+      this.gameState = GAME_PHASES.TYPING;
+      this.activeBalloons = [];
+      this.elements.balloonsContainer.innerHTML = '';
+      this.elements.svgCanvas.innerHTML = '';
+      return;
+    }
+
+    this.currentPoem = this.poems[this.currentPoemIndex];
     this.pretextEngine.init(this.elements.targetPoemContainer, this.currentPoem);
     this.elements.targetPoemContainer.classList.remove('fade-out');
 
@@ -34,21 +57,40 @@ export class TypewriterEngine {
     this.elements.balloonsContainer.innerHTML = '';
     this.elements.svgCanvas.innerHTML = '';
 
-    this.currentPoemIndex = (this.currentPoemIndex + 1) % POEMS.length;
+    this.currentPoemIndex = (this.currentPoemIndex + 1) % this.poems.length;
   }
 
   handleInput(key) {
+    const baseResult = {
+      accepted: false,
+      inputKind: 'ignored',
+      key,
+      poemText: this.currentPoem,
+      typedText: this.typedText,
+      typedIndex: this.typedIndex,
+      poemCompleted: false,
+      isCorrect: null,
+      expectedChar: null,
+    };
+
     if (this.isInputLocked) {
-      return;
+      return baseResult;
     }
 
     if (key === 'Backspace') {
-      this.removeLastBalloon();
-      return;
+      const accepted = this.removeLastBalloon();
+
+      return {
+        ...baseResult,
+        accepted,
+        inputKind: 'backspace',
+        typedText: this.typedText,
+        typedIndex: this.typedIndex,
+      };
     }
 
     if (key.length !== 1 || this.typedIndex >= this.currentPoem.length) {
-      return;
+      return baseResult;
     }
 
     const char = key.toLowerCase();
@@ -62,17 +104,30 @@ export class TypewriterEngine {
     }
 
     this.typedIndex += 1;
+    const poemCompleted = this.typedText === this.currentPoem;
 
-    if (this.typedText === this.currentPoem) {
+    if (poemCompleted) {
       this.isInputLocked = true;
       this.gameState = GAME_PHASES.WAITING_TO_RISE;
       this.phaseTransitionScheduled = false;
     }
+
+    return {
+      accepted: true,
+      inputKind: 'char',
+      key: char,
+      poemText: this.currentPoem,
+      typedText: this.typedText,
+      typedIndex: this.typedIndex,
+      poemCompleted,
+      isCorrect,
+      expectedChar: targetChar,
+    };
   }
 
   removeLastBalloon() {
     if (this.typedIndex <= 0) {
-      return;
+      return false;
     }
 
     this.typedIndex -= 1;
@@ -85,6 +140,8 @@ export class TypewriterEngine {
       balloonToDrop.startX = balloonToDrop.currentX;
       balloonToDrop.startY = balloonToDrop.currentY;
     }
+
+    return true;
   }
 
   spawnBalloon(char, index, isCorrect) {

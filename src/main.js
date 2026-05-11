@@ -1,6 +1,6 @@
 import './styles.css';
-import { mountApp } from './App.js';
+import { bootstrapAppRuntime } from './logic/hooks/bootstrapAppRuntime.js';
 
 const root = document.querySelector('#app');
 
-mountApp(root);
+bootstrapAppRuntime(root);
