@@ -121,3 +121,124 @@ body {
 .target-text.fade-out {
   opacity: 0;
 }
+
+.challenge-stats-shell {
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(34, 28, 24, 0.82), rgba(15, 14, 13, 0.74)),
+    rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(229, 214, 185, 0.22);
+  border-radius: 24px;
+  box-shadow:
+    0 24px 45px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: #f5ecdf;
+  max-width: 860px;
+  padding: 0.9rem 1rem 1rem;
+  backdrop-filter: blur(12px);
+}
+
+.challenge-stats-topline {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+}
+
+.challenge-stats-pill,
+.challenge-stats-progress,
+.challenge-stats-status {
+  font-family: 'Special Elite', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.challenge-stats-pill {
+  background: rgba(255, 237, 204, 0.12);
+  border: 1px solid rgba(255, 237, 204, 0.18);
+  border-radius: 999px;
+  color: #ffdfa9;
+  padding: 0.35rem 0.7rem;
+}
+
+.challenge-stats-progress,
+.challenge-stats-status {
+  color: rgba(245, 236, 223, 0.78);
+}
+
+.challenge-stats-grid {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.challenge-stats-card {
+  background: linear-gradient(180deg, rgba(255, 244, 225, 0.08), rgba(255, 244, 225, 0.02));
+  border: 1px solid rgba(255, 244, 225, 0.08);
+  border-radius: 18px;
+  min-width: 0;
+  padding: 0.8rem 0.9rem;
+}
+
+.challenge-stats-label {
+  color: rgba(245, 236, 223, 0.56);
+  display: block;
+  font-family: 'Special Elite', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  margin-bottom: 0.55rem;
+  text-transform: uppercase;
+}
+
+.challenge-stats-value {
+  color: #fff7eb;
+  display: block;
+  font-size: clamp(0.92rem, 1.8vw, 1.2rem);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  min-height: 1.5em;
+}
+
+.challenge-stats-note {
+  color: rgba(245, 236, 223, 0.72);
+  font-size: 0.86rem;
+  line-height: 1.4;
+  margin: 0.85rem 0 0;
+  min-height: 1.4em;
+}
+
+#challenge-stats-panel[data-validation-status='suspicious'] .challenge-stats-status {
+  color: #ffd27a;
+}
+
+#challenge-stats-panel[data-validation-status='accepted'] .challenge-stats-status {
+  color: #9ee3a3;
+}
+
+#challenge-stats-panel[data-validation-status='rejected'] .challenge-stats-status {
+  color: #ff9b91;
+}
+
+@media (max-width: 900px) {
+  .challenge-stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .challenge-stats-shell {
+    border-radius: 20px;
+    padding: 0.8rem 0.85rem 0.9rem;
+  }
+
+  .challenge-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .challenge-stats-note {
+    font-size: 0.8rem;
+  }
+}

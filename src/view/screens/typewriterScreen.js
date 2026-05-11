@@ -4,6 +4,38 @@ export function renderTypewriterScreen() {
   return `
     <div class="w-full h-screen flex flex-col justify-between">
       <div id="stage" class="relative flex-1 w-full overflow-hidden">
+        <div id="challenge-stats-panel" class="absolute left-1/2 top-4 z-30 w-[min(92vw,860px)] -translate-x-1/2 px-2 sm:px-4" hidden>
+          <section class="challenge-stats-shell mx-auto">
+            <div class="challenge-stats-topline">
+              <span id="challenge-stats-mode" class="challenge-stats-pill">Daily Challenge</span>
+              <span id="challenge-stats-progress" class="challenge-stats-progress">0/0</span>
+              <span id="challenge-stats-status" class="challenge-stats-status">loading</span>
+            </div>
+            <div class="challenge-stats-grid">
+              <article class="challenge-stats-card">
+                <span class="challenge-stats-label">Recent</span>
+                <strong id="challenge-stats-recent" class="challenge-stats-value">--</strong>
+              </article>
+              <article class="challenge-stats-card">
+                <span class="challenge-stats-label">Daily Best</span>
+                <strong id="challenge-stats-daily-best" class="challenge-stats-value">--</strong>
+              </article>
+              <article class="challenge-stats-card">
+                <span class="challenge-stats-label">Daily Rank</span>
+                <strong id="challenge-stats-daily-rank" class="challenge-stats-value">--</strong>
+              </article>
+              <article class="challenge-stats-card">
+                <span class="challenge-stats-label">All-time Best</span>
+                <strong id="challenge-stats-all-time-best" class="challenge-stats-value">--</strong>
+              </article>
+              <article class="challenge-stats-card">
+                <span class="challenge-stats-label">All-time Rank</span>
+                <strong id="challenge-stats-all-time-rank" class="challenge-stats-value">--</strong>
+              </article>
+            </div>
+            <p id="challenge-stats-note" class="challenge-stats-note">Daily stats sync here once the run starts.</p>
+          </section>
+        </div>
         <div class="absolute top-20 w-full flex justify-center px-4">
           <div id="target-poem" class="target-text flex flex-wrap justify-center"></div>
         </div>

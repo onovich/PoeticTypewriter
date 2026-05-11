@@ -71,6 +71,99 @@ function createRuntimeSignature(snapshot) {
   });
 }
 
+function formatCpsValue(value) {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? `${value.toFixed(2)} cps` : '--';
+}
+
+function formatRankValue(value) {
+  return Number.isInteger(value) && value > 0 ? `#${value}` : '--';
+}
+
+function formatStatusLabel(snapshot) {
+  if (snapshot.error?.code) {
+    return 'error';
+  }
+
+  if (snapshot.stats.validationStatus) {
+    return snapshot.stats.validationStatus.replace(/-/g, ' ');
+  }
+
+  return (snapshot.status || 'idle').replace(/-/g, ' ');
+}
+
+function buildStatsNote(snapshot) {
+  if (snapshot.error?.message) {
+    return snapshot.error.message;
+  }
+
+  if (snapshot.stats.validationStatus === 'suspicious') {
+    return 'Flagged as suspicious. Progress kept, rankings unchanged.';
+  }
+
+  if (snapshot.stats.validationStatus === 'rejected') {
+    return 'Run rejected by server validation.';
+  }
+
+  if (snapshot.stats.validationStatus === 'accepted') {
+    return 'Latest run accepted. Leaderboard stats refreshed.';
+  }
+
+  if (snapshot.status === 'awaiting-first-input') {
+    return 'The timer starts on the first accepted input.';
+  }
+
+  if (snapshot.status === 'submitting') {
+    return 'Submitting the latest run to the server...';
+  }
+
+  if (snapshot.status === 'loading-challenge' || snapshot.status === 'booting') {
+    return 'Loading today\'s challenge and ranking snapshot...';
+  }
+
+  if (snapshot.status === 'completed') {
+    return 'Today\'s challenge is complete.';
+  }
+
+  return 'Daily challenge stats stay in sync with the server.';
+}
+
+function attachChallengeStatsPanel(runtime, rootElement) {
+  const panel = rootElement.querySelector('#challenge-stats-panel');
+  if (!panel) {
+    return;
+  }
+
+  const modeElement = panel.querySelector('#challenge-stats-mode');
+  const progressElement = panel.querySelector('#challenge-stats-progress');
+  const statusElement = panel.querySelector('#challenge-stats-status');
+  const recentElement = panel.querySelector('#challenge-stats-recent');
+  const dailyBestElement = panel.querySelector('#challenge-stats-daily-best');
+  const dailyRankElement = panel.querySelector('#challenge-stats-daily-rank');
+  const allTimeBestElement = panel.querySelector('#challenge-stats-all-time-best');
+  const allTimeRankElement = panel.querySelector('#challenge-stats-all-time-rank');
+  const noteElement = panel.querySelector('#challenge-stats-note');
+
+  runtime.store.subscribe((snapshot) => {
+    const isDailyMode = snapshot.mode === APP_MODES.DAILY_CHALLENGE;
+    panel.hidden = !isDailyMode;
+
+    if (!isDailyMode) {
+      return;
+    }
+
+    modeElement.textContent = 'Daily Challenge';
+    progressElement.textContent = getDailyProgressLabel(snapshot);
+    statusElement.textContent = formatStatusLabel(snapshot);
+    recentElement.textContent = formatCpsValue(snapshot.stats.recentCps);
+    dailyBestElement.textContent = formatCpsValue(snapshot.stats.dailyBestCps);
+    dailyRankElement.textContent = formatRankValue(snapshot.stats.dailyRank);
+    allTimeBestElement.textContent = formatCpsValue(snapshot.stats.allTimeBestCps);
+    allTimeRankElement.textContent = formatRankValue(snapshot.stats.allTimeRank);
+    noteElement.textContent = buildStatsNote(snapshot);
+    panel.dataset.validationStatus = snapshot.stats.validationStatus ?? 'idle';
+  });
+}
+
 function attachRuntimeObservers(runtime) {
   let lastSignature = '';
 
@@ -311,6 +404,7 @@ export async function bootstrapAppRuntime(rootElement) {
     store,
   };
 
+  attachChallengeStatsPanel(runtime, rootElement);
   attachRuntimeObservers(runtime);
   createDebugBridge(runtime);
 
