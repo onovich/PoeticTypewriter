@@ -53,6 +53,7 @@
 如果本地 Worker 已经启动，还可以直接跑一次 CLI smoke test：
 
 - `npm run smoke:local`
+- `npm run smoke:rejected`
 - `npm run smoke:rate-limit`
 - `npm run smoke:submission-rate`
 - `npm run smoke:suspicious`
@@ -64,6 +65,7 @@
 - `POST /v1/runs/start`
 - `POST /v1/runs/complete`
 
+`smoke:rejected` 会提交一次超过硬字速阈值的成绩，确认它会被 `rejected`，不会推进进度，不会刷新 best，并返回 `leaderboardEligible = false`。
 其中 `smoke:rate-limit` 会连续请求 6 次 `POST /v1/runs/start`，确认第 6 次返回 `429 run_start_rate_limited`。
 它还会额外模拟“同一 IP 下连续创建多个匿名玩家”的场景，确认第 13 次返回 `429 run_start_ip_rate_limited`。
 `smoke:submission-rate` 会连续完成多条正常成绩，确认短时间内过高的完成频率会把当前成绩标记为 `suspicious`，同时不会刷新 best 和排行。

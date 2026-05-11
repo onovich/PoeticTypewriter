@@ -13,6 +13,7 @@
     "db:migrate:remote": "npx --yes wrangler d1 migrations apply poetic-typewriter --remote",
     "dev": "npx --yes wrangler dev",
     "smoke:local": "node scripts/smokeTestLocalApi.js",
+    "smoke:rejected": "node scripts/smokeTestLocalRejectedRun.js",
     "smoke:rate-limit": "node scripts/smokeTestLocalRateLimit.js",
     "smoke:submission-rate": "node scripts/smokeTestLocalSubmissionRate.js",
     "smoke:suspicious": "node scripts/smokeTestLocalSuspiciousRun.js",
