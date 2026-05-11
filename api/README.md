@@ -110,6 +110,7 @@
 - `validationStatus = suspicious` 的成绩会保留给玩家本地反馈，并允许继续推进挑战进度。
 - `validationStatus = suspicious` 的成绩不会更新 `daily_best_cps`、`best_cps`，也不会进入对应排行。
 - 当前 `suspicious` 触发源已覆盖：可疑字速、过于平滑的输入样本、过高的短时完成频率。
+- `POST /v1/runs/complete` 现在会显式返回 `leaderboardEligible`，用于告诉前端本次成绩是否具备榜单资格，而不必仅靠 `validationStatus` 推断。
 
 ## 当前限制
 

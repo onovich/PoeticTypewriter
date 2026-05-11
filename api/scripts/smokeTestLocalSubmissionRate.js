@@ -103,6 +103,7 @@ async function main() {
       dailyBestCps: complete.payload.dailyBestCps,
       dailyRank: complete.payload.dailyRank,
       index: index + 1,
+      leaderboardEligible: complete.payload.leaderboardEligible,
       recentCps: complete.payload.recentCps,
       suspiciousFlags: complete.payload.suspiciousFlags,
       validationStatus: complete.payload.validationStatus,
@@ -120,6 +121,7 @@ async function main() {
     lastAttempt.validationStatus !== 'suspicious' ||
     !Array.isArray(lastAttempt.suspiciousFlags) ||
     !lastAttempt.suspiciousFlags.includes('high_submission_rate') ||
+    lastAttempt.leaderboardEligible !== false ||
     !previousAttempt ||
     lastAttempt.dailyBestCps !== previousAttempt.dailyBestCps ||
     lastAttempt.allTimeBestCps !== previousAttempt.allTimeBestCps

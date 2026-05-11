@@ -99,6 +99,7 @@ async function main() {
     currentItemAfterSuspiciousRun: refreshedToday.payload.currentItem?.text ?? null,
     dailyBestCps: complete.payload.dailyBestCps,
     dailyRank: complete.payload.dailyRank,
+    leaderboardEligible: complete.payload.leaderboardEligible,
     nextItemAfterSuspiciousRun: complete.payload.nextItem?.text ?? null,
     recentCps: complete.payload.recentCps,
     suspiciousFlags: complete.payload.suspiciousFlags,
@@ -116,6 +117,7 @@ async function main() {
     complete.payload.validationStatus !== 'suspicious' ||
     !Array.isArray(complete.payload.suspiciousFlags) ||
     !complete.payload.suspiciousFlags.includes('uniform_input_sample') ||
+    complete.payload.leaderboardEligible !== false ||
     complete.payload.dailyBestCps !== 0 ||
     complete.payload.dailyRank !== null ||
     complete.payload.allTimeBestCps !== 0 ||

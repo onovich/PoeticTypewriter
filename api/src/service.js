@@ -415,6 +415,8 @@ export async function handleCompleteRun(request, env) {
     validationStatus = 'suspicious';
   }
 
+  const leaderboardEligible = validationStatus === 'accepted';
+
   await completeRun(env.DB, {
     backspaceCount,
     completedAt: getNowIso(),
@@ -436,7 +438,7 @@ export async function handleCompleteRun(request, env) {
       updatedAt: getNowIso(),
     });
 
-    if (validationStatus === 'accepted' && cps > Number(progress.daily_best_cps ?? 0)) {
+    if (leaderboardEligible && cps > Number(progress.daily_best_cps ?? 0)) {
       await updateDailyBest(env.DB, {
         cps,
         progressId: progress.id,
@@ -446,7 +448,7 @@ export async function handleCompleteRun(request, env) {
     }
 
     const currentAllTimeBest = await getAllTimeBest(env.DB, playerContext.player.id);
-    if (validationStatus === 'accepted' && cps > Number(currentAllTimeBest.best_cps ?? 0)) {
+    if (leaderboardEligible && cps > Number(currentAllTimeBest.best_cps ?? 0)) {
       await upsertAllTimeBest(env.DB, {
         cps,
         playerId: playerContext.player.id,
@@ -472,6 +474,7 @@ export async function handleCompleteRun(request, env) {
       allTimeRank: stats.allTimeRank,
       dailyBestCps: stats.dailyBestCps,
       dailyRank: stats.dailyRank,
+      leaderboardEligible,
       nextItem: nextItem
         ? {
             itemId: nextItem.id,

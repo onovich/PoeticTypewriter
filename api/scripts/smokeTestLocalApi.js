@@ -86,6 +86,7 @@ async function main() {
         currentItem: today.currentItem.text,
         dailyBestCps: complete.dailyBestCps,
         healthOk: health.ok,
+        leaderboardEligible: complete.leaderboardEligible,
         nextItem: complete.nextItem?.text ?? null,
         recentCps: complete.recentCps,
         runTokenIssued: Boolean(start.runToken),

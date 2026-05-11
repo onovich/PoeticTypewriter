@@ -5,6 +5,7 @@ const DEFAULT_STATS = {
   allTimeRank: null,
   dailyBestCps: null,
   dailyRank: null,
+  leaderboardEligible: null,
   recentCps: null,
   suspiciousFlags: [],
   validationStatus: null,
