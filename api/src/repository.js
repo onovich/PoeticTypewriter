@@ -126,6 +126,17 @@ export async function countRecentRunStartsByIp(db, startedIpHash, startedAfterIs
   return Number(row?.count ?? 0);
 }
 
+export async function countRecentCompletedRunsByPlayer(db, playerId, completedAfterIso) {
+  const row = await db
+    .prepare(
+      "SELECT COUNT(*) AS count FROM runs WHERE player_id = ? AND completed_at IS NOT NULL AND completed_at >= ? AND validation_status IN ('accepted', 'suspicious')",
+    )
+    .bind(playerId, completedAfterIso)
+    .first();
+
+  return Number(row?.count ?? 0);
+}
+
 export async function recordRunStart(db, runInput) {
   await db
     .prepare(

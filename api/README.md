@@ -54,6 +54,7 @@
 
 - `npm run smoke:local`
 - `npm run smoke:rate-limit`
+- `npm run smoke:submission-rate`
 - `npm run smoke:suspicious`
 
 它会顺序验证：
@@ -65,6 +66,7 @@
 
 其中 `smoke:rate-limit` 会连续请求 6 次 `POST /v1/runs/start`，确认第 6 次返回 `429 run_start_rate_limited`。
 它还会额外模拟“同一 IP 下连续创建多个匿名玩家”的场景，确认第 13 次返回 `429 run_start_ip_rate_limited`。
+`smoke:submission-rate` 会连续完成多条正常成绩，确认短时间内过高的完成频率会把当前成绩标记为 `suspicious`，同时不会刷新 best 和排行。
 `smoke:suspicious` 会提交一次可疑但不拒绝的成绩，确认它会推进到下一题，但不会更新当日最佳、历史最佳或对应排名。
 
 ## 本地开发环境
@@ -96,6 +98,8 @@
 - `RUN_START_LIMIT_WINDOW_MS`：单玩家 `run start` 限流窗口，默认 60000ms
 - `RUN_START_IP_LIMIT_MAX`：单 IP 近窗内允许的 `run start` 最大次数，默认 12
 - `RUN_START_IP_LIMIT_WINDOW_MS`：单 IP `run start` 限流窗口，默认 60000ms
+- `SUSPICIOUS_COMPLETION_LIMIT_MAX`：单玩家短窗口内允许的非拒绝完成次数阈值，默认 4
+- `SUSPICIOUS_COMPLETION_LIMIT_WINDOW_MS`：短时完成频率的检测窗口，默认 15000ms
 - `SUSPICIOUS_CPS_LIMIT`：可疑字速阈值
 - `SUSPICIOUS_SAMPLE_VARIANCE_MIN`：输入间隔过于平滑时的可疑阈值
 - `RUN_TOKEN_TTL_MS`：run token 过期时间，默认 300000ms
@@ -105,6 +109,7 @@
 
 - `validationStatus = suspicious` 的成绩会保留给玩家本地反馈，并允许继续推进挑战进度。
 - `validationStatus = suspicious` 的成绩不会更新 `daily_best_cps`、`best_cps`，也不会进入对应排行。
+- 当前 `suspicious` 触发源已覆盖：可疑字速、过于平滑的输入样本、过高的短时完成频率。
 
 ## 当前限制
 

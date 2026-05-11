@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS idx_runs_player_completed_at ON runs(player_id, completed_at DESC);

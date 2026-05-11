@@ -2,6 +2,7 @@ import { buildPlayerCookie, PLAYER_COOKIE_NAME, readCookie } from './cookies.js'
 import { errorResponse, jsonResponse, readJson } from './http.js';
 import {
   advancePlayerProgress,
+  countRecentCompletedRunsByPlayer,
   countRecentRunStartsByIp,
   countRecentRunStartsByPlayer,
   completeRun,
@@ -40,6 +41,8 @@ function getRunConfig(env) {
 
   return {
     hardCpsLimit: getNumberEnv(env, 'HARD_CPS_LIMIT', 20),
+    suspiciousCompletionLimitMax: getNumberEnv(env, 'SUSPICIOUS_COMPLETION_LIMIT_MAX', 4),
+    suspiciousCompletionLimitWindowMs: getNumberEnv(env, 'SUSPICIOUS_COMPLETION_LIMIT_WINDOW_MS', 15_000),
     runStartIpLimitMax: getNumberEnv(env, 'RUN_START_IP_LIMIT_MAX', 12),
     runStartIpLimitWindowMs: getNumberEnv(env, 'RUN_START_IP_LIMIT_WINDOW_MS', runStartLimitWindowMs),
     runStartLimitMax,
@@ -393,6 +396,16 @@ export async function handleCompleteRun(request, env) {
     },
     config,
   );
+
+  const recentCompletedRunCount = await countRecentCompletedRunsByPlayer(
+    env.DB,
+    playerContext.player.id,
+    getIsoBeforeWindow(config.suspiciousCompletionLimitWindowMs),
+  );
+
+  if (recentCompletedRunCount >= config.suspiciousCompletionLimitMax) {
+    suspiciousFlags.push('high_submission_rate');
+  }
 
   let validationStatus = 'accepted';
   if (cps >= config.hardCpsLimit) {
