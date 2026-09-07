@@ -115,6 +115,36 @@ body {
   padding-top: 5rem;
 }
 
+.mode-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  flex: 0 0 auto;
+  padding: 12px 12px 0;
+  position: relative;
+  z-index: 40;
+}
+
+.mode-tab {
+  padding: 8px 22px;
+  border: 1px solid #514737;
+  border-radius: 8px;
+  color: #ada394;
+  background: #201e1b;
+  font: 14px/1.4 system-ui, sans-serif;
+  text-decoration: none;
+}
+
+.mode-tab[aria-current='page'] {
+  background: #423729;
+  color: #f1d4a1;
+  border-color: #a88a58;
+  box-shadow: inset 0 1px 0 #ffffff15;
+}
+
+.mode-tab:focus-visible { outline: 2px solid #f1d4a1; outline-offset: 3px; }
+#challenge-elapsed { font-variant-numeric: tabular-nums; }
+
 #challenge-stats-panel:not([hidden]) + .poem-target-area {
   padding-top: 1.5rem;
 }

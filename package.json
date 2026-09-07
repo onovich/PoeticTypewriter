@@ -11,7 +11,8 @@
     "deploy:cloudflare": "node scripts/deployCloudflare.js",
     "smoke:cloudflare": "node scripts/smokeTestDailyBrowser.js --cloudflare",
     "preview": "vite preview",
-    "smoke:browser:daily": "node scripts/smokeTestDailyBrowser.js"
+    "smoke:browser:daily": "node scripts/smokeTestDailyBrowser.js",
+    "test": "node --test scripts/*.test.js"
   },
   "devDependencies": {
     "@fontsource/playfair-display": "^5.3.0",

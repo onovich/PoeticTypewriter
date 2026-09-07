@@ -458,12 +458,24 @@ async function runViewportChecks(browser) {
       assert(layout.poemBottom <= layout.keyboardTop, `viewport ${viewport.width}: poem overlaps keyboard`);
       assert(layout.scrollWidth <= layout.width, `viewport ${viewport.width}: horizontal overflow`);
       assert(layout.keyboardBottom <= layout.height, `viewport ${viewport.width}: keyboard is clipped`);
-      await page.goto(WEB_BASE_URL.replace('?mode=daily', '?mode=free'));
+      assert(await page.locator('[data-mode="daily-challenge"]').getAttribute('aria-current') === 'page', 'daily tab is selected');
+      assert(await page.locator('#challenge-elapsed').textContent() === '0.0 s', 'timer starts at zero');
+      const firstCharacter = await page.evaluate(() => window.__POETIC_TYPEWRITER__.snapshot.currentItem.text[0]);
+      await page.keyboard.type(firstCharacter);
+      await page.waitForFunction(() => parseFloat(document.querySelector('#challenge-elapsed').textContent) >= 0.2);
+      const elapsedBefore = await page.locator('#challenge-elapsed').textContent();
+      await page.waitForFunction(previous => document.querySelector('#challenge-elapsed').textContent !== previous, elapsedBefore);
+      await page.locator('[data-mode="free"]').click();
       await page.waitForFunction(() => window.__POETIC_TYPEWRITER__?.summary?.mode === 'free');
+      assert(await page.locator('[data-mode="free"]').getAttribute('aria-current') === 'page', 'free tab is selected');
+      await page.locator('#stage').click({ position: { x: 4, y: 4 } });
       await page.keyboard.type('a');
       await page.waitForFunction(() => document.querySelectorAll('#balloons-container .balloon-char').length > 0);
       await page.screenshot({ path: path.join(directory, `free-${viewport.width}.png`), fullPage: true });
-      results.push({ viewport, layout, freeInput: 'passed' });
+      await page.locator('[data-mode="daily-challenge"]').click();
+      await page.waitForFunction(() => window.__POETIC_TYPEWRITER__?.summary?.status === 'awaiting-first-input');
+      assert(await page.locator('#challenge-elapsed').textContent() === '0.0 s', 'switching back resets timer');
+      results.push({ viewport, layout, freeInput: 'passed', modeTabs: 'passed', liveTimer: 'passed' });
     } finally { await context.close(); }
   }
   return results;

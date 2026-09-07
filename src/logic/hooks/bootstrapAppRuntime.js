@@ -199,6 +199,13 @@ function attachChallengeStatsPanel(runtime, rootElement) {
 
   runtime.store.subscribe((snapshot) => {
     const isDailyMode = snapshot.mode === APP_MODES.DAILY_CHALLENGE;
+    rootElement.querySelectorAll('.mode-tab').forEach((tab) => {
+      const url = new URL(window.location.href);
+      url.searchParams.set('mode', tab.dataset.mode === APP_MODES.FREE ? 'free' : 'daily');
+      tab.href = url.toString();
+      if (tab.dataset.mode === snapshot.mode) tab.setAttribute('aria-current', 'page');
+      else tab.removeAttribute('aria-current');
+    });
     panel.hidden = !isDailyMode;
 
     if (!isDailyMode) {

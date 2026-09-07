@@ -3,6 +3,10 @@ import { renderKeyboard } from '../components/keyboard.js';
 export function renderTypewriterScreen() {
   return `
     <div class="w-full h-screen flex flex-col justify-between">
+      <nav class="mode-tabs" aria-label="游戏模式">
+        <a class="mode-tab" data-mode="free" href="?mode=free">自由模式</a>
+        <a class="mode-tab" data-mode="daily-challenge" href="?mode=daily">每日挑战</a>
+      </nav>
       <div id="stage" class="relative flex-1 w-full overflow-hidden">
         <div id="challenge-stats-panel" class="relative z-30 w-[min(92vw,860px)] mx-auto mt-4 px-2 sm:px-4" hidden>
           <section class="challenge-stats-shell mx-auto">
@@ -13,6 +17,10 @@ export function renderTypewriterScreen() {
               <span id="challenge-stats-eligibility" class="challenge-stats-eligibility">Checking rank status</span>
             </div>
             <div class="challenge-stats-grid">
+              <article class="challenge-stats-card">
+                <span class="challenge-stats-label">本句用时</span>
+                <strong id="challenge-elapsed" class="challenge-stats-value" aria-label="本句用时">0.0 s</strong>
+              </article>
               <article class="challenge-stats-card">
                 <span class="challenge-stats-label">Recent</span>
                 <strong id="challenge-stats-recent" class="challenge-stats-value">--</strong>

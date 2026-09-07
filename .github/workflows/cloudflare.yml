@@ -32,6 +32,7 @@ jobs:
             api/package-lock.json
       - run: npm ci
       - run: npm ci --prefix api
+      - run: npm test
       - run: npm test --prefix api
       - run: npx playwright install --with-deps chromium
       - name: Set local test secret

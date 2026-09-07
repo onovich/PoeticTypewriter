@@ -5,7 +5,12 @@
   "repoRoot": "D:/WebProjects/PoeticTypewriter",
   "safeDirectory": "D:/WebProjects/PoeticTypewriter",
   "statusCommand": "git status --short --branch",
-  "validationCommands": ["git diff --check", "npm run build", "npm test --prefix api"],
+  "validationCommands": [
+    "git diff --check",
+    "npm run build",
+    "npm test",
+    "npm test --prefix api"
+  ],
   "stagingPolicy": "all changes",
   "commitCommand": "",
   "pushCommand": "git push -u origin HEAD",

@@ -83,4 +83,10 @@ export class TypingRunTracker {
   getLastCompletedRun() {
     return this.lastCompletedRun;
   }
+
+  getElapsedMs() {
+    return this.startedAtMs === null
+      ? (this.lastCompletedRun?.elapsedMs ?? 0)
+      : Math.max(0, this.now() - this.startedAtMs);
+  }
 }

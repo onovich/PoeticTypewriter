@@ -15,6 +15,7 @@ export function createTypewriterApp(rootElement, options = {}) {
     poems: options.poems ?? FREE_MODE_POEMS,
   });
   const tracker = new TypingRunTracker();
+  const elapsedElement = rootElement.querySelector('#challenge-elapsed');
   let animationFrameId = 0;
   let lastCompletedRun = null;
 
@@ -56,6 +57,7 @@ export function createTypewriterApp(rootElement, options = {}) {
   };
 
   const onKeyDown = (event) => {
+    if (event.target.closest?.('a, button, input, textarea, select') || event.ctrlKey || event.metaKey || event.altKey) return;
     processInput(event.key);
     highlightVisualKey(event.key);
   };
@@ -77,6 +79,8 @@ export function createTypewriterApp(rootElement, options = {}) {
 
   const frameLoop = () => {
     engine.update(Date.now() / 1000);
+    const elapsedText = `${(Math.floor(tracker.getElapsedMs() / 100) / 10).toFixed(1)} s`;
+    if (elapsedElement.textContent !== elapsedText) elapsedElement.textContent = elapsedText;
     animationFrameId = window.requestAnimationFrame(frameLoop);
   };
 
@@ -89,6 +93,7 @@ export function createTypewriterApp(rootElement, options = {}) {
       return lastCompletedRun;
     },
     setPoems(poems, options = {}) {
+      tracker.reset();
       engine.setPoems(poems, { resetIndex: options.resetIndex });
 
       if (options.loadImmediately) {
