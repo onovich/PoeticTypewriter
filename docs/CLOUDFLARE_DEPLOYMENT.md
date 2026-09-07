@@ -31,9 +31,9 @@
 
 ## 远端部署结果
 
-- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `44e76283-4e85-4c9c-93cd-d37739baf846`。
+- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `40f8daff-de20-4f3c-804e-a233ba3b2efe`。
 - Staging D1：`158c8d4c-78bf-4e80-97f6-7ac0a369b492`。
-- Production Worker：`poetic-typewriter`，版本 `49c41b88-805c-430f-8ac7-00654b213e12`，关闭 workers.dev。
+- Production Worker：`poetic-typewriter`，版本 `61435785-4f57-4504-ae79-523fb5e1c982`，关闭 workers.dev。
 - Production D1：`7cf4511c-9da0-441e-9f38-f000ed0f64bd`。
 - 已通过 API 确认生产仅绑定 `game.onovich.com/PoeticTypewriter` 与 `game.onovich.com/PoeticTypewriter/*` 两条路由，门户首页保留。
 - 真实 staging HTTPS 浏览器 smoke 全通过：pending、accepted、suspicious、rejected、失败回退、Cookie 作用域、308 跳转、路径隔离、桌面及手机竖屏布局、自由模式键盘输入。日志位于 `.local/staging-browser-smoke.log`。测试成绩仅写 staging。
@@ -181,3 +181,15 @@ HTML 预加载两款首屏 WOFF2 字体，Vite 自动转换为与 CSS 相同的�
 本轮源码 `6fdba08` 已发布：staging `44e76283-4e85-4c9c-93cd-d37739baf846`，production `49c41b88-805c-430f-8ac7-00654b213e12`。两环境真实页面均通过延迟响应固定坐标回归，以及 390/1440px 中英文四列统计、透明导航与语言切换验收；生产门户仍返回 200 并保留 Onovich 内容。成绩接口采用浏览器模拟，没有提交真实挑战成绩。
 
 发布与验收证据：`.local/quiet-ui-staging-deploy.log`、`.local/quiet-ui-production-deploy.log`、`.local/quiet-ui-staging-verification.log`、`.local/quiet-ui-production-verification.log`、`.local/screenshots/production-quiet-*.png`。
+
+## SEO 基础优化（2026-09-07）
+
+首页补齐描述性标题、随语言切换的摘要、固定生产 canonical、Open Graph / Twitter 分享信息、1200×630 PNG 和真实 WebApplication JSON-LD。初始 HTML 包含可读简介与说明链接；运行后保留语义标题及键盘右下角的轻量说明入口，后者参与语言淡入淡出，不改变统计与诗句布局。取消 viewport 禁止缩放限制。
+
+构建生成 `/guide/en/` 与 `/guide/zh/` 静态说明页，分别有自引用 canonical、双向 hreflang 与 x-default。站点地图为 `/PoeticTypewriter/sitemap.xml`，仅列出主游戏及两篇说明，不收录模式参数副本，也不批量生成诗句薄内容。预览域静态资产附加 noindex；正式域可索引。详见 `docs/SEO.md`。
+
+已发布 staging `40f8daff-de20-4f3c-804e-a233ba3b2efe` 与 production `61435785-4f57-4504-ae79-523fb5e1c982`。本地完整玩法与 SEO smoke 通过；最终说明入口位置在 staging 再次通过固定坐标及中英手机/桌面回归。两环境真实 HTTPS 验证无 JavaScript 内容、说明页链接、语言标记、站点地图、分享图尺寸、404 与主页面索引响应均通过。生产未提交真实挑战成绩。
+
+门户和根 robots.txt 只读验证：门户 200，robots 允许搜索抓取；现有 Sitemap 指向门户站点地图索引，未修改根路由。项目 sitemap 已部署并通过链接暴露，但未向 Search Console 提交或确认收录，需要站点所有者账号完成该外部步骤。
+
+证据：`.local/seo-smoke.log`、`.local/seo-staging-ui.log`、`.local/seo-staging-deploy.log`、`.local/seo-production-deploy.log`、`.local/seo-staging-verification.log`、`.local/seo-production-verification.log` 与 `.local/screenshots/seo-guide-*.png`。远程抓取检查使用 Chromium 网络栈，避免本机 Node TLS 间歇性握手失败，证书验证保持开启。

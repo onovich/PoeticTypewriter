@@ -1,6 +1,8 @@
 export const LOCALE_KEY = 'poetic-typewriter.locale';
 export const messages = {
   en: {
+    guide: 'Guide', seoTitle: 'Poetic Typewriter — Free Poetry Typing Practice',
+    description: 'Practice English typing with short poetic lines and a vintage typewriter. Enjoy endless free practice or a daily ten-line challenge with speed tracking.',
     title: 'Poetic Typewriter', modes: 'Writing mode', free: 'Free writing', daily: 'Daily challenge',
     language: 'Language', elapsed: 'Time', seconds: 's', recent: 'Recent', best: 'Today’s best', rank: 'Today’s rank',
     progress: 'Sentence {current} of {total}', cps: '{value} chars/s', speedUnit: 'chars/s', backspace: 'Delete', space: 'Space',
@@ -10,6 +12,8 @@ export const messages = {
     fallback: 'Daily challenge is unavailable. Enjoy free writing for now.',
   },
   'zh-CN': {
+    guide: '说明', seoTitle: '诗意打字机 — 免费英文诗句打字练习',
+    description: '用复古打字机练习简短英文诗句，体验无限自由模式或每日十句挑战，记录打字速度。免费在线游玩，支持中文与英文界面。',
     title: '诗意打字机', modes: '写作模式', free: '自由模式', daily: '每日挑战',
     language: '语言', elapsed: '本句用时', seconds: '秒', recent: '最近成绩', best: '今日最佳', rank: '今日排名',
     progress: '第 {current} / {total} 句', cps: '{value} 字符/秒', speedUnit: '字符/秒', backspace: '删除', space: '空格',

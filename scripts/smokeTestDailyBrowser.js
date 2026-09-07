@@ -8,6 +8,7 @@ import { chromium } from 'playwright';
 import { checkLocalizedInterface } from './interfaceBrowserChecks.js';
 import { checkPoemRotation } from './poemBrowserChecks.js';
 import { checkStableStats } from './stableStatsBrowserChecks.js';
+import { checkSeo } from './seoBrowserChecks.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '..');
@@ -314,7 +315,7 @@ async function waitForFallbackFree(page) {
         bridge?.mode === 'free' &&
         bridge.summary?.mode === 'free' &&
         bridge.summary?.status === 'fallback-free' &&
-        document.title === 'Poetic Typewriter · Free writing' &&
+        document.title === 'Poetic Typewriter — Free Poetry Typing Practice · Free writing' &&
         panel?.hidden === true
       );
     },
@@ -409,7 +410,7 @@ async function runFallbackFreeScenario(browser) {
     assert(result.summary?.status === 'fallback-free', 'fallback free: wrong runtime status');
     assert(result.summary?.progress === null, 'fallback free: progress should be cleared');
     assert(result.panelHidden === true, 'fallback free: stats panel should be hidden');
-    assert(result.title === 'Poetic Typewriter · Free writing', 'fallback free: wrong title');
+    assert(result.title === 'Poetic Typewriter — Free Poetry Typing Practice · Free writing', 'fallback free: wrong title');
 
     return {
       bridgeMode: result.bridgeMode,
@@ -524,6 +525,7 @@ async function main() {
     const localization = CLOUDFLARE ? await checkLocalizedInterface(browser, WEB_BASE_URL, path.join(ROOT_DIR, '.local', 'screenshots')) : null;
     const poemRotation = CLOUDFLARE ? await checkPoemRotation(browser, WEB_BASE_URL) : null;
     const stableStats = CLOUDFLARE ? await checkStableStats(browser, WEB_BASE_URL) : null;
+    if (CLOUDFLARE) console.log('SEO:', await checkSeo(browser, WEB_BASE_URL));
 
     console.log(JSON.stringify({ fallback: fallbackResult, scenarios: results, viewports, localization, poemRotation, stableStats }, null, 2));
   } finally {

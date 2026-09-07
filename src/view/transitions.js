@@ -14,7 +14,7 @@ export function createTransitions(root) {
       root.dataset.transition = kind;
       // Language includes the complete panels so their reflow happens invisibly.
       const elements = kind === 'mode' ? [root.querySelector('#stage'), root.querySelector('.locale-switch')]
-        : [...root.querySelectorAll('.app-toolbar, #stage, .key-legend')];
+        : [...root.querySelectorAll('.app-toolbar, #stage, .key-legend, .guide-link')];
       let out = [], into = [];
       try {
         out = await fade(elements, 1, 0);

@@ -1,2 +1,8 @@
 /PoeticTypewriter/assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+https://poetic-typewriter-staging.onovich1110.workers.dev/*
+  X-Robots-Tag: noindex
+
+/PoeticTypewriter/
+  Link: <https://game.onovich.com/PoeticTypewriter/sitemap.xml>; rel="sitemap"

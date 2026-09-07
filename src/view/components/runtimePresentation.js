@@ -2,7 +2,9 @@ export function syncPresentation(root, snapshot, i18n) {
   const { t } = i18n;
   const daily = snapshot.mode === 'daily-challenge';
   document.documentElement.lang = i18n.locale;
-  document.title = `${t('title')} · ${t(daily ? 'daily' : 'free')}`;
+  document.title = `${t('seoTitle')} · ${t(daily ? 'daily' : 'free')}`;
+  document.querySelector('meta[name="description"]')?.setAttribute('content', t('description'));
+  root.querySelector('.guide-link').href = `guide/${i18n.locale === 'zh-CN' ? 'zh' : 'en'}/`;
   root.querySelectorAll('[data-i18n]').forEach(element => { element.textContent = t(element.dataset.i18n); });
   root.querySelector('.mode-tabs').setAttribute('aria-label', t('modes'));
   root.querySelector('.locale-switch').setAttribute('aria-label', t('language'));

@@ -4,6 +4,7 @@ import { renderChallengePanel } from '../components/challengePanel.js';
 export function renderTypewriterScreen() {
   return `
     <div class="app-shell w-full h-screen flex flex-col justify-between">
+      <h1 class="sr-only" data-i18n="title"></h1>
       <header class="app-toolbar">
         <nav class="mode-tabs" aria-label="">
           <a class="mode-tab" data-mode="free" href="?mode=free" data-i18n="free"></a>
@@ -23,6 +24,7 @@ export function renderTypewriterScreen() {
         <div id="balloons-container" class="absolute inset-0 w-full h-full pointer-events-none"></div>
       </div>
       <div id="typewriter" class="typewriter-body w-full pb-8 pt-4 px-2 sm:px-4 z-30">
+        <a class="guide-link" href="guide/en/" data-i18n="guide">Guide</a>
         <div id="paper-slot-area" class="h-2 mx-auto rounded-full paper-slot mb-6 relative"></div>
         <div id="keyboard" class="flex flex-col gap-2 sm:gap-3 max-w-2xl mx-auto">${renderKeyboard()}</div>
       </div>
