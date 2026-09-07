@@ -31,7 +31,7 @@
 
 ## 远端部署结果
 
-- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `2eecdced-c157-4436-b849-4ea0c4699041`。
+- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `3d64ad83-b892-4237-b3ed-131380b7bc5b`。
 - Staging D1：`158c8d4c-78bf-4e80-97f6-7ac0a369b492`。
 - Production Worker：`poetic-typewriter`，版本 `12d65cb9-f41f-42c8-99a5-8d9e7e8f7948`，关闭 workers.dev。
 - Production D1：`7cf4511c-9da0-441e-9f38-f000ed0f64bd`。
@@ -109,3 +109,13 @@ npm run smoke:cloudflare
 优化版已发布 staging 与 production。正式页面在两种视口下通过外部样式/字体域名阻断检查、每日题目加载和自由输入；门户另用 HTTP 检查确认 200 且保留 Onovich 内容。代理网络下首次复测总等待约 8.1 秒，其中 HTML 首字节已占 7.0 秒；同浏览器二次访问约 0.92 秒。此前相同测量脚本为 13.16 / 2.84 秒，但样本少且网络波动明显，不能把差值全归因于代码。资源记录确认不再请求 Tailwind CDN / Google Fonts，字体全部来自本站。
 
 同网络第二轮独立浏览器复测为首次 1.77 秒、再次 0.90 秒，进一步说明首次连接耗时存在波动。
+
+## 字体预加载与浏览器缓存（2026-09-07）
+
+HTML 预加载两款首屏 WOFF2 字体，Vite 自动转换为与 CSS 相同的哈希 URL，避免重复下载。Cloudflare 构建将 `config/cloudflare-headers` 放到静态资源根目录：仅 `/PoeticTypewriter/assets/*` 使用 `public, max-age=31536000, immutable`。HTML 保持 `max-age=0, must-revalidate`，API 保持 no-store。带哈希文件名随内容变化，更新不会依赖旧文件缓存过期。
+
+新增可复用测速脚本：`node scripts/measureBrowserLoad.js <每日挑战URL>`，按需设置 `POETIC_TYPEWRITER_TEST_PROXY`。从导航提交开始等待游戏可输入状态，不等待统计脚本延迟的 DOMContentLoaded/load 事件。输出首字节、可输入、字体就绪及每个静态资源传输量；不提交成绩。
+
+预览验证：字体与 JS/CSS 在 HTML 解析时同时请求；二次访问四个静态资源传输量均为 0，之前 JS/CSS 各有约 240ms 的缓存再验证。桌面与手机竖屏的每日挑战、Cookie、自由输入及布局均通过。网络切换/TLS 失败的辅助请求单独重测，不归因于页面实现。
+
+本轮部署状态：staging 版本 `3d64ad83-b892-4237-b3ed-131380b7bc5b` 已生效。生产多次在 Cloudflare API 请求阶段返回 `fetch failed`，包含直连和现有代理重试；未成功发布本轮配置，生产仍是 `12d65cb9-f41f-42c8-99a5-8d9e7e8f7948`。网络恢复后执行原生产部署入口并验证 assets 的 immutable 响应头及页面/API 的缓存边界。不存在数据库迁移或新授权需求。
