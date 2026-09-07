@@ -1,3 +1,5 @@
+import { DAILY_ITEM_COUNT } from '../../shared/challengeRules.js';
+
 function defaultAllTimeBest(playerId) {
   return {
     player_id: playerId,
@@ -9,19 +11,21 @@ function defaultAllTimeBest(playerId) {
 
 export async function getChallengeByDate(db, challengeDate) {
   return db
-    .prepare('SELECT id, challenge_date, item_count FROM daily_challenges WHERE challenge_date = ?')
+    .prepare(`SELECT id, challenge_date, MIN(item_count, ${DAILY_ITEM_COUNT}) AS item_count FROM daily_challenges WHERE challenge_date = ?`)
     .bind(challengeDate)
     .first();
 }
 
 export async function getChallengeById(db, challengeId) {
   return db
-    .prepare('SELECT id, challenge_date, item_count FROM daily_challenges WHERE id = ?')
+    .prepare(`SELECT id, challenge_date, MIN(item_count, ${DAILY_ITEM_COUNT}) AS item_count FROM daily_challenges WHERE id = ?`)
     .bind(challengeId)
     .first();
 }
 
 export async function getChallengeItemByPosition(db, challengeId, position) {
+  // Old 100-item sets and their scores remain intact, but play stops after ten.
+  if (position > DAILY_ITEM_COUNT) return null;
   return db
     .prepare(
       'SELECT id, challenge_id, position, text, normalized_text, char_count FROM challenge_items WHERE challenge_id = ? AND position = ?',

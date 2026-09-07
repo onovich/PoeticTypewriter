@@ -98,7 +98,7 @@ export function createTypewriterApp(rootElement, options = {}) {
     },
     setPoems(poems, options = {}) {
       tracker.reset();
-      engine.setPoems(poems, { resetIndex: options.resetIndex });
+      engine.setPoems(poems, { resetIndex: options.resetIndex, poemSource: options.poemSource });
 
       if (options.loadImmediately) {
         engine.loadNextPoem();

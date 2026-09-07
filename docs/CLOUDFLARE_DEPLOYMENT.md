@@ -7,7 +7,7 @@
 - `api/wrangler.cloudflare.jsonc` 将静态前端和 API 交给同一个 Worker；`/PoeticTypewriter/v1/...` 与 `/PoeticTypewriter/health` 优先进入 API，其余项目内请求由静态资源处理。
 - 本地、staging、production 使用不同数据库名称与 ID 配置。远端数据库实际 ID 已写入配置，两库均已应用全部 3 个迁移；发布脚本拒绝占位 ID。
 - `npm run build:cloudflare` 构建 `dist-cloudflare/PoeticTypewriter/`，预览与生产都使用 `/PoeticTypewriter/` 子路径及同域 API；普通 `npm run build` 继续支持原 GitHub Pages 构建。
-- 当天首次 API 访问会生成 100 条题目。沿用原有 UTC 日期边界（北京时间 08:00 换日）与确定性题库，同日不重生成。事务内分组插入，每组不超过 98 个绑定参数。
+- 当天首次 API 访问会生成 10 条题目。沿用原有 UTC 日期边界（北京时间 08:00 换日）与确定性题库，同日不重生成。事务内分组插入，每组不超过 98 个绑定参数。
 - 修复异步 handler 未 await 导致异常绕过 API 错误处理的问题。异常 JSON 返回 400；错误 Cookie 和畸形签名令牌不会导致未处理异常。
 - API 响应禁止缓存；新同域入口拒绝外站 Origin，生产 Cookie 保留 Secure、HttpOnly、SameSite=Lax。
 - 修复统计面板覆盖题目，将二者放入正常文档流；保留自由模式原有上方留白。
@@ -158,3 +158,12 @@ HTML 预加载两款首屏 WOFF2 字体，Vite 自动转换为与 CSS 相同的�
 预览真实 HTTPS 完整 smoke 通过；生产中英文 320/390/768/1024/1440px、语言缓存、输入/计时保留、固定键盘、后退、旧请求隔离、减少动态效果全部通过，截图已检查。生产只输入单字符，不完成或提交成绩；测试的大速度数值只临时修改当前浏览器快照用于布局检查，不写数据库。HTML 保持重新验证，API health 为 200/no-store，JS 为 200/immutable，门户浏览器检查 200 且保留 Onovich 内容。临时上游转发已关闭，临时密钥文件已移除。
 
 本轮证据位于此工作区忽略目录 `.local/ui-smoke-final.log`、`.local/ui-staging-smoke.log`、`.local/ui-production-activation.log`、`.local/ui-production-verification.log` 和 `.local/screenshots/production-localized/`。
+## 题库与每日十句（2026-09-07）
+
+两模式共用 `shared/poemLibrary.js` 的 415 句不重复英文短诗句（原有 140 句与新增 275 句）。所有句子只使用小写英文字母和空格，适配现有键盘；新增内容为本项目编写，不依赖在线取句服务。
+
+每日生成默认值和两个 CLI 入口统一为 10 句，先规范化去重再按日期确定性随机抽取，同日对所有玩家保持一致，10 句内部不会重复。已持久化的旧 100 句集合保留，API 总数和可玩位置上限均为 10；完成第十句即返回空 nextItem，第十一句的开始或提交被拒绝。已有超过十句的进度在界面显示为 10/10，但原始进度、历史成绩和题目记录不删除、不改写。
+
+自由模式每次从当天未出现的句子中随机取一句，出题即记为已出现，刷新、重开页面和来回切换模式后继续使用 `poetic-typewriter.free-deck.v1` 缓存。整库用完后重新开始不重复循环，避免循环最后一句与下一轮第一句相同。按与每日挑战相同的 UTC 日期换日（北京时间 08:00），保留一天的记录；顺序访问的同源标签页共享进度。同时瞬间出题的多个标签页受 localStorage 非事务性限制，不保证互斥分配。存储不可用时当前页面内仍不重复。
+
+验证覆盖 366 个日期的每日十句唯一性与稳定性、415 句格式和去重、跨刷新/标签页的整库循环、换日及异常存储。真实 D1/API 测试完整提交十句，并验证旧 100 句集合停止于十句、拒绝第十一句且保留既有记录；浏览器验证自由模式完成后换句、刷新记忆和模式切换记忆。

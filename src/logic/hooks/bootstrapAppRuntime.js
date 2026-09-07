@@ -6,6 +6,7 @@ import { CompetitionClient } from '../services/competitionClient.js';
 import { createI18n } from '../i18n.js';
 import { syncPresentation } from '../../view/components/runtimePresentation.js';
 import { createTransitions } from '../../view/transitions.js';
+import { createFreePoemDeck } from '../services/freePoemDeck.js';
 
 export async function bootstrapAppRuntime(rootElement) {
   const config = {
@@ -16,6 +17,7 @@ export async function bootstrapAppRuntime(rootElement) {
   let storage;
   try { storage = window.localStorage; } catch { /* Storage is optional. */ }
   const i18n = createI18n({ storage, languages: navigator.languages ?? [navigator.language] });
+  const freeDeck = createFreePoemDeck({ poems: FREE_MODE_POEMS, storage });
   const store = createChallengeSessionStore();
   const client = config.apiBaseUrl ? new CompetitionClient({ baseUrl: config.apiBaseUrl }) : null;
   const transition = createTransitions(rootElement);
@@ -117,7 +119,7 @@ export async function bootstrapAppRuntime(rootElement) {
     const requestGeneration = ++generation;
     clearRun();
     const daily = mode === APP_MODES.DAILY_CHALLENGE && Boolean(client);
-    app.setPoems(daily ? [] : FREE_MODE_POEMS, { loadImmediately: true, resetIndex: true });
+    app.setPoems([], { loadImmediately: true, resetIndex: true, poemSource: daily ? null : () => freeDeck.next() });
     store.reset({ mode: daily ? APP_MODES.DAILY_CHALLENGE : APP_MODES.FREE, status: daily ? 'loading-challenge' : 'ready' });
     if (!daily) return Promise.resolve();
     return client.getTodayChallenge().then(today => {
@@ -131,7 +133,7 @@ export async function bootstrapAppRuntime(rootElement) {
       });
     }).catch(error => {
       if (generation !== requestGeneration) return;
-      app.setPoems(FREE_MODE_POEMS, { loadImmediately: true, resetIndex: true });
+      app.setPoems([], { loadImmediately: true, resetIndex: true, poemSource: () => freeDeck.next() });
       store.patch({ mode: APP_MODES.FREE, status: 'fallback-free', error: { code: error.code ?? 'challenge_bootstrap_failed' } });
     });
   };

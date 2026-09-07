@@ -20,6 +20,7 @@ export class TypewriterEngine {
   }
 
   setPoems(poems, options = {}) {
+    this.poemSource = options.poemSource ?? null;
     this.poems = Array.isArray(poems) ? poems.filter(Boolean) : [];
 
     if (options.resetIndex !== false) {
@@ -31,7 +32,7 @@ export class TypewriterEngine {
     this.clearTimers();
     this.phaseTransitionScheduled = false;
 
-    if (this.poems.length === 0) {
+    if (this.poems.length === 0 && !this.poemSource) {
       this.currentPoem = '';
       this.pretextEngine.init(this.elements.targetPoemContainer, this.currentPoem);
       this.elements.targetPoemContainer.classList.remove('fade-out');
@@ -45,7 +46,7 @@ export class TypewriterEngine {
       return;
     }
 
-    this.currentPoem = this.poems[this.currentPoemIndex];
+    this.currentPoem = this.poemSource ? this.poemSource() : this.poems[this.currentPoemIndex];
     this.pretextEngine.init(this.elements.targetPoemContainer, this.currentPoem);
     this.elements.targetPoemContainer.classList.remove('fade-out');
 
@@ -57,7 +58,7 @@ export class TypewriterEngine {
     this.elements.balloonsContainer.innerHTML = '';
     this.elements.svgCanvas.innerHTML = '';
 
-    this.currentPoemIndex = (this.currentPoemIndex + 1) % this.poems.length;
+    if (!this.poemSource) this.currentPoemIndex = (this.currentPoemIndex + 1) % this.poems.length;
   }
 
   handleInput(key) {

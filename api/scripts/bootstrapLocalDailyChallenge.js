@@ -1,3 +1,4 @@
+import { DAILY_ITEM_COUNT } from '../../shared/challengeRules.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -9,7 +10,7 @@ function getTodayIsoDate() {
 
 function parseArgs(argv) {
   const options = {
-    count: 100,
+    count: DAILY_ITEM_COUNT,
     date: getTodayIsoDate(),
     skipMigrate: false,
     target: 'local',

@@ -1,6 +1,7 @@
 import { CHALLENGE_POOL } from '../data/challengePool.js';
+import { DAILY_ITEM_COUNT } from '../../shared/challengeRules.js';
 
-const DEFAULT_ITEM_COUNT = 100;
+const DEFAULT_ITEM_COUNT = DAILY_ITEM_COUNT;
 
 function assertValidDate(challengeDate) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(challengeDate)) {
@@ -58,6 +59,7 @@ export function getNormalizedChallengePool() {
 
 export function generateDailyChallengeSet(challengeDate, itemCount = DEFAULT_ITEM_COUNT) {
   assertValidDate(challengeDate);
+  if (!Number.isInteger(itemCount) || itemCount < 1) throw new Error('Item count must be a positive integer');
 
   const normalizedPool = getNormalizedChallengePool();
   if (normalizedPool.length < itemCount) {

@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { mkdirSync } from 'node:fs';
 import { chromium } from 'playwright';
 import { checkLocalizedInterface } from './interfaceBrowserChecks.js';
+import { checkPoemRotation } from './poemBrowserChecks.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '..');
@@ -520,8 +521,9 @@ async function main() {
     const fallbackResult = await runFallbackFreeScenario(browser);
     const viewports = CLOUDFLARE ? await runViewportChecks(browser) : [];
     const localization = CLOUDFLARE ? await checkLocalizedInterface(browser, WEB_BASE_URL, path.join(ROOT_DIR, '.local', 'screenshots')) : null;
+    const poemRotation = CLOUDFLARE ? await checkPoemRotation(browser, WEB_BASE_URL) : null;
 
-    console.log(JSON.stringify({ fallback: fallbackResult, scenarios: results, viewports, localization }, null, 2));
+    console.log(JSON.stringify({ fallback: fallbackResult, scenarios: results, viewports, localization, poemRotation }, null, 2));
   } finally {
     if (browser) {
       await browser.close();

@@ -1,3 +1,4 @@
+import { DAILY_ITEM_COUNT } from '../../shared/challengeRules.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { createDailyChallengeSeedSql, generateDailyChallengeSet } from '../src/challengeGeneration.js';
@@ -8,7 +9,7 @@ function getTodayIsoDate() {
 
 function parseArgs(argv) {
   const options = {
-    count: 100,
+    count: DAILY_ITEM_COUNT,
     date: getTodayIsoDate(),
     out: null,
     preview: false,

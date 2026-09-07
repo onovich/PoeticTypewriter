@@ -8,7 +8,7 @@
 
 - 已提供每日挑战接口骨架：`GET /health`、`GET /v1/challenge/today`、`POST /v1/runs/start`、`POST /v1/runs/complete`
 - 已提供 D1 初始迁移
-- 已提供原创题库池与每日 100 条 SQL 生成脚本
+- 已提供原创题库池与每日 10 条 SQL 生成脚本
 - 已提供基于 CLI 的本地检查、开发与部署入口
 
 ## 使用方式
@@ -33,7 +33,7 @@
 
 它会自动：
 
-- 生成当天 100 条挑战 SQL 到仓库根目录下的 `.local/challenges/`
+- 生成当天 10 条挑战 SQL 到仓库根目录下的 `.local/challenges/`
 - 执行本地 D1 migration
 - 将当天挑战写入本地 D1
 
@@ -43,7 +43,7 @@
 
 它会自动：
 
-- 生成当天 100 条挑战 SQL 到仓库根目录下的 `.local/challenges/`
+- 生成当天 10 条挑战 SQL 到仓库根目录下的 `.local/challenges/`
 - 执行远端 D1 migration
 - 将当天挑战写入远端 D1
 
@@ -84,15 +84,15 @@
 ## 每日题库脚本
 
 - 默认行为：`npm run challenge:sql`
-	- 直接把当天 100 条内容的 SQL 打到标准输出
+	- 直接把当天 10 条内容的 SQL 打到标准输出
 - 预览当天题库：`npm run challenge:preview -- --date 2026-05-11`
 - 指定日期：`npm run challenge:sql -- --date 2026-05-11`
 - 输出到文件：`npm run challenge:sql -- --date 2026-05-11 --out ../.local/daily-challenge-2026-05-11.sql`
-- 指定条目数：`npm run challenge:sql -- --date 2026-05-11 --count 100 --out ../.local/daily-challenge.sql`
+- 指定条目数：`npm run challenge:sql -- --date 2026-05-11 --count 10 --out ../.local/daily-challenge.sql`
 - 一键准备本地 D1：`npm run db:bootstrap:local -- --date 2026-05-11`
 - 一键准备远端 D1：`npm run db:bootstrap:remote -- --date 2026-05-11`
 
-脚本会根据日期稳定洗牌，所以同一个日期多次生成的 100 条内容顺序一致。
+脚本会根据日期稳定洗牌，所以同一个日期多次生成的 10 条内容顺序一致。
 
 ## 环境变量
 
