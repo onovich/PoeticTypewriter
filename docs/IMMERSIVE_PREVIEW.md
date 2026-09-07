@@ -6,7 +6,7 @@ This is a reversible visual experiment, not a production release.
 - Baseline: `be0b24b` (includes the SEO center's latest documentation); previous UI commit: `4d94dae`.
 - Production remains at Worker version `1f0f4f28-40d6-4ea4-b768-267a990d112a` with the original full-width keyboard.
 - Preview: https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/?mode=daily
-- Preview Worker version: `e74af63a-7caf-4c51-adb0-d4688065ef6c`.
+- Preview Worker version: `db9055a8-3c8a-4488-8825-fd0da8e00077`.
 
 ## Experiment
 
@@ -25,3 +25,9 @@ Full local browser regression: `.local/layout-preview-smoke-final.log`, includin
 Do not merge this branch into main or deploy it to production until the user accepts the preview. If rejected, main and production already retain the previous interface; no production rollback is necessary. Keep the experimental branch for comparison, or rebuild the baseline in an isolated checkout and redeploy it to staging if the user wants the preview removed. Do not reset or overwrite unrelated SEO work.
 
 If accepted later, merge the complete branch after checking current main, rerun validation, and deploy through the normal staging/production workflow. If subsequently reverted, revert the experiment's commit through a normal new commit; avoid destructive history rewrites. No database migration or production data changes are involved.
+
+## Quiet loading follow-up
+
+Daily bootstrap keeps progress, statistics, notes and verse invisible while reserving their geometry. The loading sentence is removed. Resolved content fades in over 280ms; navigation and keyboard stay visible. Starting a run and submitting a score do not restart this animation. Completed-day content and failure fallback remain available; reduced-motion preferences skip the reveal animation. The stage exposes `aria-busy` during loading.
+
+`scripts/loadingBrowserChecks.js` uses a held API response to verify blank loading, occupied layout, arrival animation, unchanged coordinates, completed days and reduced motion in Chinese and English. Full local regression and the deployed preview both passed: `.local/quiet-loading-smoke.log`, `.local/quiet-loading-verification.log`. This is a follow-up on the same preview branch; main and production remain unchanged.

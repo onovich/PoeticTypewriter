@@ -1,4 +1,16 @@
 /* Isolated layout experiment. The production baseline is retained on main. */
+/* Reserve the composition while fetching; reveal only resolved content. */
+#stage[data-challenge-loading='true'] :is(#challenge-stats-panel, .challenge-notice-slot, .poem-target-area) {
+  opacity: 0;
+  visibility: hidden;
+}
+#stage[data-challenge-ready='true'] :is(#challenge-stats-panel, .challenge-notice-slot, .poem-target-area) {
+  animation: challenge-arrival 280ms ease-out;
+}
+@keyframes challenge-arrival { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  #stage[data-challenge-ready='true'] :is(#challenge-stats-panel, .challenge-notice-slot, .poem-target-area) { animation: none; }
+}
 :root {
   --ink-primary: #d0cdc3;
   --ink-secondary: #aaa9a1;

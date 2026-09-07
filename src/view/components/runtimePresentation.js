@@ -1,6 +1,11 @@
 export function syncPresentation(root, snapshot, i18n) {
   const { t } = i18n;
   const daily = snapshot.mode === 'daily-challenge';
+  const loading = daily && ['booting', 'loading-challenge'].includes(snapshot.status);
+  const stage = root.querySelector('#stage');
+  stage.dataset.challengeLoading = String(loading);
+  stage.dataset.challengeReady = String(!loading && (daily || snapshot.status === 'fallback-free'));
+  stage.setAttribute('aria-busy', String(loading));
   document.documentElement.lang = i18n.locale;
   document.title = `${t('seoTitle')} · ${t(daily ? 'daily' : 'free')}`;
   document.querySelector('meta[name="description"]')?.setAttribute('content', t('description'));
@@ -42,7 +47,6 @@ export function syncPresentation(root, snapshot, i18n) {
   if (snapshot.status === 'fallback-free') note = t('fallback');
   else if (snapshot.error) note = t('error');
   else if (snapshot.status === 'completed') note = t('completed');
-  else if (['booting', 'loading-challenge'].includes(snapshot.status)) note = t('loading');
   else if (['suspicious', 'rejected'].includes(snapshot.stats.validationStatus)) note = t(snapshot.stats.validationStatus);
   const noteElement = root.querySelector('#challenge-stats-note');
   noteElement.textContent = note;
