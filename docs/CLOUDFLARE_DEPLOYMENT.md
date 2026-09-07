@@ -31,9 +31,9 @@
 
 ## 远端部署结果
 
-- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `3d64ad83-b892-4237-b3ed-131380b7bc5b`。
+- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `7f9070dd-eb4d-4380-8cc6-25ce8db91461`。
 - Staging D1：`158c8d4c-78bf-4e80-97f6-7ac0a369b492`。
-- Production Worker：`poetic-typewriter`，版本 `12d65cb9-f41f-42c8-99a5-8d9e7e8f7948`，关闭 workers.dev。
+- Production Worker：`poetic-typewriter`，版本 `12196d14-cede-4273-82fb-61bb500fadd9`，关闭 workers.dev。
 - Production D1：`7cf4511c-9da0-441e-9f38-f000ed0f64bd`。
 - 已通过 API 确认生产仅绑定 `game.onovich.com/PoeticTypewriter` 与 `game.onovich.com/PoeticTypewriter/*` 两条路由，门户首页保留。
 - 真实 staging HTTPS 浏览器 smoke 全通过：pending、accepted、suspicious、rejected、失败回退、Cookie 作用域、308 跳转、路径隔离、桌面及手机竖屏布局、自由模式键盘输入。日志位于 `.local/staging-browser-smoke.log`。测试成绩仅写 staging。
@@ -118,7 +118,7 @@ HTML 预加载两款首屏 WOFF2 字体，Vite 自动转换为与 CSS 相同的�
 
 预览验证：字体与 JS/CSS 在 HTML 解析时同时请求；二次访问四个静态资源传输量均为 0，之前 JS/CSS 各有约 240ms 的缓存再验证。桌面与手机竖屏的每日挑战、Cookie、自由输入及布局均通过。网络切换/TLS 失败的辅助请求单独重测，不归因于页面实现。
 
-本轮部署状态：staging 版本 `3d64ad83-b892-4237-b3ed-131380b7bc5b` 已生效。生产多次在 Cloudflare API 请求阶段返回 `fetch failed`，包含直连和现有代理重试；未成功发布本轮配置，生产仍是 `12d65cb9-f41f-42c8-99a5-8d9e7e8f7948`。网络恢复后执行原生产部署入口并验证 assets 的 immutable 响应头及页面/API 的缓存边界。不存在数据库迁移或新授权需求。
+此前部署状态（已由下方最终发布结果更新）：staging 版本 `3d64ad83-b892-4237-b3ed-131380b7bc5b` 已生效。生产多次在 Cloudflare API 请求阶段返回 `fetch failed`，包含直连和现有代理重试；未成功发布本轮配置，生产仍是 `12d65cb9-f41f-42c8-99a5-8d9e7e8f7948`。网络恢复后执行原生产部署入口并验证 assets 的 immutable 响应头及页面/API 的缓存边界。不存在数据库迁移或新授权需求。
 
 ## 模式切换与实时计时（2026-09-07）
 
@@ -126,4 +126,21 @@ HTML 预加载两款首屏 WOFF2 字体，Vite 自动转换为与 CSS 相同的�
 
 每日挑战新增本句用时，读取与成绩提交共用的 TypingRunTracker 单调时钟，以 0.1 秒精度显示；首次有效字符开始，停顿与退格期间持续计时，完成停止，换题归零。输入处理忽略导航控件焦点与系统快捷键，避免切换模式时误输入。
 
-新增计时单测（停止、退格、归零），浏览器 smoke 增加桌面/手机双向模式切换和停顿期间计时增长检查；全部通过。发布尝试仍遇到 Cloudflare API TLS 连接重置，本轮 UI 尚未发布到 Cloudflare，生产保持原版本。
+新增计时单测（停止、退格、归零），浏览器 smoke 增加桌面/手机双向模式切换和停顿期间计时增长检查；全部通过。最初发布尝试遇到 Cloudflare API TLS 连接重置；网络切换后已完成本轮 UI 发布，最终结果如下。
+
+## 最终发布与验收（2026-09-07）
+
+源码 `78d5729b934c58581aa77ac9afbe1bfea4d4040c` 已推送 main，并完成预览与生产发布，包含字体预加载、哈希资源缓存、模式导航及实时计时。本节取代前文的临时网络阻塞状态。
+
+- Staging：`7f9070dd-eb4d-4380-8cc6-25ce8db91461`。
+- Production：`12196d14-cede-4273-82fb-61bb500fadd9`。
+- 两环境远端迁移检查均为 No migrations to apply；复用原有数据库和持久签名密钥。
+- 预览真实浏览器完整 smoke 通过：accepted、suspicious、rejected、接口失败回退、路径隔离，以及桌面/手机布局、模式切换和计时。首次运行超时，复测全部通过；完整成绩测试仅写预览库。
+- 正式站在 1440×900 和 390×844 通过：每日题目加载、导航高亮、自由输入、首字符启动计时、停顿继续计时、切回归零、无布局重叠和横向溢出、无页面运行异常；截图已目视检查。
+- 正式站 Cookie 保持 Secure、HttpOnly、SameSite=Lax 和 `/PoeticTypewriter/` 作用域。验收仅输入一个字符并切换模式，额外拦截成绩完成请求并确认没有尝试提交，生产未写测试成绩。
+- 两环境 HTML 为 `max-age=0, must-revalidate`；哈希 JS/CSS/字体为 `max-age=31536000, immutable`；health API 为 `no-store`。没有外部 Tailwind/Google Fonts 请求。
+- 正式发布输出确认仍仅绑定 `game.onovich.com/PoeticTypewriter` 和 `game.onovich.com/PoeticTypewriter/*`。门户首页浏览器返回 200 并保留 Onovich 内容。
+
+用户切换网络后，curl 的 TLS 通道恢复但 Node 仍间歇断连。本机使用忽略目录 `.local/cfTransport.py` 的临时回环转发，仅允许官方 Cloudflare API 与 OAuth token 端点，保持上游证书校验，仅对 curl 握手失败做有限重试。现有 OAuth 已成功刷新，无重新登录或更换签名密钥。此助手并非生产依赖或持久系统代理设置；发布后关闭，临时密钥文件已自动清除。
+
+本机证据（均已忽略）：`.local/release-staging-resumed.log`、`.local/release-production-resumed.log`、`.local/staging-browser-resumed.log`、`.local/staging-release-verification.log`、`.local/production-release-verification.log`、`.local/screenshots/production-release-390.png` 和 `production-release-1440.png`。GitHub Actions 的 Cloudflare Environment Secrets 配置状态不变。
