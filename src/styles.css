@@ -1,4 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Special+Elite&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   color: #ffffff;
@@ -107,6 +109,14 @@ body {
 .balloon-char.error {
   color: #ff6b6b;
   text-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+}
+
+.poem-target-area {
+  padding-top: 5rem;
+}
+
+#challenge-stats-panel:not([hidden]) + .poem-target-area {
+  padding-top: 1.5rem;
 }
 
 .target-text {

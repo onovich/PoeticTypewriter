@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "initializedMarker": "codex-project-git-workflow: initialized",
+  "projectName": "PoeticTypewriter",
+  "repoRoot": "D:/WebProjects/PoeticTypewriter",
+  "safeDirectory": "D:/WebProjects/PoeticTypewriter",
+  "statusCommand": "git status --short --branch",
+  "validationCommands": ["git diff --check", "npm run build", "npm test --prefix api"],
+  "stagingPolicy": "all changes",
+  "commitCommand": "",
+  "pushCommand": "git push -u origin HEAD",
+  "docsRequirement": "Update deployment and validation records when behavior changes.",
+  "forbiddenCommands": "No force push or destructive reset without explicit authorization."
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "poetic-typewriter-local",
+  "main": "src/cloudflare.js",
+  "compatibility_date": "2026-09-07",
+  "assets": {
+    "directory": "../dist-cloudflare",
+    "binding": "ASSETS",
+    "run_worker_first": ["/PoeticTypewriter", "/PoeticTypewriter/health", "/PoeticTypewriter/v1", "/PoeticTypewriter/v1/*"]
+  },
+  "observability": { "enabled": true },
+  "vars": { "COOKIE_SECURE": "false" },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "poetic-typewriter-local",
+    "database_id": "00000000-0000-0000-0000-000000000002",
+    "migrations_dir": "migrations"
+  }],
+  "env": {
+    "staging": {
+      "name": "poetic-typewriter-staging",
+      "workers_dev": true,
+      "vars": { "COOKIE_SECURE": "true" },
+      "d1_databases": [{
+        "binding": "DB",
+        "database_name": "poetic-typewriter-staging",
+        "database_id": "158c8d4c-78bf-4e80-97f6-7ac0a369b492",
+        "migrations_dir": "migrations"
+      }]
+    },
+    "production": {
+      "name": "poetic-typewriter",
+      "workers_dev": false,
+      "routes": [
+        { "pattern": "game.onovich.com/PoeticTypewriter", "zone_name": "onovich.com" },
+        { "pattern": "game.onovich.com/PoeticTypewriter/*", "zone_name": "onovich.com" }
+      ],
+      "vars": { "COOKIE_SECURE": "true" },
+      "d1_databases": [{
+        "binding": "DB",
+        "database_name": "poetic-typewriter-production",
+        "database_id": "7cf4511c-9da0-441e-9f38-f000ed0f64bd",
+        "migrations_dir": "migrations"
+      }]
+    }
+  }
+}

@@ -3,16 +3,24 @@ import path from 'node:path';
 import process from 'node:process';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
+import { mkdirSync } from 'node:fs';
 import { chromium } from 'playwright';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '..');
 const API_DIR = path.resolve(ROOT_DIR, 'api');
+const REMOTE_URL = process.env.POETIC_TYPEWRITER_SMOKE_REMOTE_URL?.replace(/\/+$/, '');
+const CLOUDFLARE = Boolean(REMOTE_URL) || process.argv.includes('--cloudflare');
+const TEST_PROXY = process.env.POETIC_TYPEWRITER_TEST_PROXY;
+if (REMOTE_URL && TEST_PROXY) {
+  const { ProxyAgent, setGlobalDispatcher } = await import('../api/node_modules/undici/index.js');
+  setGlobalDispatcher(new ProxyAgent(TEST_PROXY));
+}
 
 const API_PORT = Number.parseInt(process.env.POETIC_TYPEWRITER_BROWSER_API_PORT ?? '8788', 10);
 const WEB_PORT = Number.parseInt(process.env.POETIC_TYPEWRITER_BROWSER_WEB_PORT ?? '4273', 10);
-const API_BASE_URL = `http://127.0.0.1:${API_PORT}`;
-const WEB_BASE_URL = `http://127.0.0.1:${WEB_PORT}/PoeticTypewriter/?mode=daily`;
+const API_BASE_URL = REMOTE_URL || `http://127.0.0.1:${API_PORT}${CLOUDFLARE ? '/PoeticTypewriter' : ''}`;
+const WEB_BASE_URL = CLOUDFLARE ? `${API_BASE_URL}/?mode=daily` : `http://127.0.0.1:${WEB_PORT}/PoeticTypewriter/?mode=daily`;
 const SERVER_BOOT_TIMEOUT_MS = 60000;
 const STEP_TIMEOUT_MS = 30000;
 
@@ -376,6 +384,11 @@ async function runScenario(browser, scenario) {
   try {
     const initialState = await waitForDailyReady(page);
     assertDailyReadyState(initialState);
+    if (CLOUDFLARE) {
+      const cookie = (await context.cookies()).find((entry) => entry.name === 'pt_player');
+      assert(cookie?.path === '/PoeticTypewriter/', 'player cookie must stay within the game subpath');
+      assert(cookie.httpOnly, 'player cookie must be HttpOnly');
+    }
     await typeText(page, initialState.currentItemText, scenario.delays);
     const result = await waitForOutcome(page, scenario.expectedValidationStatus);
 
@@ -423,36 +436,82 @@ async function runFallbackFreeScenario(browser) {
   }
 }
 
+async function runViewportChecks(browser) {
+  const results = [];
+  const directory = path.join(ROOT_DIR, '.local', 'screenshots');
+  mkdirSync(directory, { recursive: true });
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    const context = await browser.newContext({ viewport });
+    const page = await context.newPage();
+    try {
+      await waitForDailyReady(page);
+      await page.screenshot({ path: path.join(directory, `daily-${viewport.width}.png`), fullPage: true });
+      const layout = await page.evaluate(() => {
+        const poem = document.querySelector('#target-poem').getBoundingClientRect();
+        const panel = document.querySelector('.challenge-stats-shell').getBoundingClientRect();
+        const keyboard = document.querySelector('#keyboard').getBoundingClientRect();
+        return { poemTop: poem.top, poemBottom: poem.bottom, panelBottom: panel.bottom,
+          keyboardTop: keyboard.top, keyboardBottom: keyboard.bottom,
+          scrollWidth: document.documentElement.scrollWidth, width: innerWidth, height: innerHeight };
+      });
+      assert(layout.poemTop >= layout.panelBottom, `viewport ${viewport.width}: stats overlap the poem: ${JSON.stringify(layout)}`);
+      assert(layout.poemBottom <= layout.keyboardTop, `viewport ${viewport.width}: poem overlaps keyboard`);
+      assert(layout.scrollWidth <= layout.width, `viewport ${viewport.width}: horizontal overflow`);
+      assert(layout.keyboardBottom <= layout.height, `viewport ${viewport.width}: keyboard is clipped`);
+      await page.goto(WEB_BASE_URL.replace('?mode=daily', '?mode=free'));
+      await page.waitForFunction(() => window.__POETIC_TYPEWRITER__?.summary?.mode === 'free');
+      await page.keyboard.type('a');
+      await page.waitForFunction(() => document.querySelectorAll('#balloons-container .balloon-char').length > 0);
+      await page.screenshot({ path: path.join(directory, `free-${viewport.width}.png`), fullPage: true });
+      results.push({ viewport, layout, freeInput: 'passed' });
+    } finally { await context.close(); }
+  }
+  return results;
+}
+
 async function main() {
   const runningChildren = [];
   let browser = null;
 
   try {
-    await runCommand({
-      args: ['run', 'db:bootstrap:local'],
-      cwd: API_DIR,
-    });
-
-    const apiServer = startCommand({
-      args: ['run', 'dev', '--', '--local', '--port', String(API_PORT)],
-      cwd: API_DIR,
-      label: 'api',
-    });
-    runningChildren.push(apiServer);
+    if (REMOTE_URL && !new URL(REMOTE_URL).hostname.endsWith('.workers.dev')) {
+      throw new Error('Remote smoke writes test scores: use an isolated workers.dev staging environment.');
+    }
+    if (!REMOTE_URL) {
+      await runCommand({
+        args: ['run', CLOUDFLARE ? 'cloudflare:migrate:local' : 'db:bootstrap:local'], cwd: API_DIR,
+      });
+      if (CLOUDFLARE) {
+        await runCommand({ args: ['run', 'build:cloudflare'], cwd: ROOT_DIR });
+      }
+      const apiServer = startCommand({
+        args: ['run', CLOUDFLARE ? 'cloudflare:dev' : 'dev', '--', '--local', '--port', String(API_PORT)],
+        cwd: API_DIR, label: 'api',
+      });
+      runningChildren.push(apiServer);
+    }
 
     await waitForUrl(`${API_BASE_URL}/health`, SERVER_BOOT_TIMEOUT_MS);
 
-    const webServer = startWebServer({
-      apiBaseUrl: API_BASE_URL,
-      label: 'web',
-      port: WEB_PORT,
-    });
-    runningChildren.push(webServer);
+    if (!CLOUDFLARE) {
+      const webServer = startWebServer({ apiBaseUrl: API_BASE_URL, label: 'web', port: WEB_PORT });
+      runningChildren.push(webServer);
+    }
 
     await waitForUrl(WEB_BASE_URL, SERVER_BOOT_TIMEOUT_MS);
+    if (CLOUDFLARE) {
+      const redirect = await fetch(`${API_BASE_URL}?mode=daily`, { redirect: 'manual' });
+      assert(redirect.status === 308, 'subpath without slash should redirect');
+      assert(redirect.headers.get('Location') === WEB_BASE_URL, 'redirect should preserve the daily mode');
+      const origin = new URL(API_BASE_URL).origin;
+      for (const pathname of ['/', '/v1/challenge/today', '/PoeticTypewriterOther/']) {
+        assert((await fetch(origin + pathname)).status === 404, `application leaked outside subpath: ${pathname}`);
+      }
+    }
 
     browser = await chromium.launch({
       headless: true,
+      ...(REMOTE_URL && TEST_PROXY ? { proxy: { server: TEST_PROXY } } : {}),
     });
 
     const results = [];
@@ -461,8 +520,9 @@ async function main() {
     }
 
     const fallbackResult = await runFallbackFreeScenario(browser);
+    const viewports = CLOUDFLARE ? await runViewportChecks(browser) : [];
 
-    console.log(JSON.stringify({ fallback: fallbackResult, scenarios: results }, null, 2));
+    console.log(JSON.stringify({ fallback: fallbackResult, scenarios: results, viewports }, null, 2));
   } finally {
     if (browser) {
       await browser.close();

@@ -1,0 +1,109 @@
+# Cloudflare 部署准备与验收（2026-09-07）
+
+本地与真实 staging 浏览器流程已验证，staging 和 production Worker、D1 数据库均已部署。用户已开启 `game` DNS 代理，正式地址已上线并通过浏览器验收；GitHub 手动部署工作流需要另行配置 Environment Secrets。
+
+## 已完成
+
+- `api/wrangler.cloudflare.jsonc` 将静态前端和 API 交给同一个 Worker；`/PoeticTypewriter/v1/...` 与 `/PoeticTypewriter/health` 优先进入 API，其余项目内请求由静态资源处理。
+- 本地、staging、production 使用不同数据库名称与 ID 配置。远端数据库实际 ID 已写入配置，两库均已应用全部 3 个迁移；发布脚本拒绝占位 ID。
+- `npm run build:cloudflare` 构建 `dist-cloudflare/PoeticTypewriter/`，预览与生产都使用 `/PoeticTypewriter/` 子路径及同域 API；普通 `npm run build` 继续支持原 GitHub Pages 构建。
+- 当天首次 API 访问会生成 100 条题目。沿用原有 UTC 日期边界（北京时间 08:00 换日）与确定性题库，同日不重生成。事务内分组插入，每组不超过 98 个绑定参数。
+- 修复异步 handler 未 await 导致异常绕过 API 错误处理的问题。异常 JSON 返回 400；错误 Cookie 和畸形签名令牌不会导致未处理异常。
+- API 响应禁止缓存；新同域入口拒绝外站 Origin，生产 Cookie 保留 Secure、HttpOnly、SameSite=Lax。
+- 修复统计面板覆盖题目，将二者放入正常文档流；保留自由模式原有上方留白。
+- 增加 API 依赖锁文件、隔离预览发布入口和手动触发的 `.github/workflows/cloudflare.yml`。
+
+## 已验证结果
+
+| 检查 | 结果 |
+| --- | --- |
+| 原 Vite 构建、API 模块导入 | 通过 |
+| staging / production Wrangler dry-run | 通过；仅打包检查，不代表远端绑定存在 |
+| Wrangler runtime types | 已成功生成到忽略目录 `.local/` |
+| API 自动化测试 | 5 项通过：D1 首次生成/并发幂等/跨日、异步错误、路由与 Origin、子路径隔离/跳转、Cookie/令牌 |
+| 原 API smoke | 6 组通过：正常、可疑、拒绝、提交频率、IP 漂移、玩家/IP 限流 |
+| 构建产物 + 本地 Worker 浏览器 smoke | pending、accepted、suspicious、rejected、bootstrap 失败回退均通过 |
+| 原 Worker + Vite 浏览器 smoke | 同样的 4 类结果通过，保留原开发路径 |
+| 桌面 1440×900、手机竖屏 390×844 | 统计不遮挡题目、题目不遮挡键盘、无横向溢出、自由模式真实键盘输入通过 |
+| 已确认的子路径版本复测 | 浏览器流程、静态资源、Cookie Path、无尾斜杠 308 跳转、根路径及相似路径隔离全部通过；两个环境的发布脚本 dry-run 通过 |
+
+截图在 `.local/screenshots/`（忽略文件，不提交）。浏览器烟测会自行启动并关闭本地服务。手机横屏、真实移动设备和生产网络延迟仍需上线前验收；这轮没有做压力测试或并发成绩提交的原子性专项测试。
+
+## 远端部署结果
+
+- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `2eecdced-c157-4436-b849-4ea0c4699041`。
+- Staging D1：`158c8d4c-78bf-4e80-97f6-7ac0a369b492`。
+- Production Worker：`poetic-typewriter`，版本 `12d65cb9-f41f-42c8-99a5-8d9e7e8f7948`，关闭 workers.dev。
+- Production D1：`7cf4511c-9da0-441e-9f38-f000ed0f64bd`。
+- 已通过 API 确认生产仅绑定 `game.onovich.com/PoeticTypewriter` 与 `game.onovich.com/PoeticTypewriter/*` 两条路由，门户首页保留。
+- 真实 staging HTTPS 浏览器 smoke 全通过：pending、accepted、suspicious、rejected、失败回退、Cookie 作用域、308 跳转、路径隔离、桌面及手机竖屏布局、自由模式键盘输入。日志位于 `.local/staging-browser-smoke.log`。测试成绩仅写 staging。
+- 本机测试经现有代理 `http://127.0.0.1:7897` 访问 staging；测试脚本使用 `POETIC_TYPEWRITER_TEST_PROXY` 同时配置 Node HTTP 和 Chromium，未关闭 TLS 校验。
+- 两环境签名密钥分别保存在忽略目录 `.local/credentials/`，部署助手 `.local/deployEnvironment.mjs` 复用已有密钥；临时上传密钥文件在部署结束后删除。
+
+## 正式域名验收完成
+
+2026-09-07 用户已将 `game` CNAME 开启橙云，目标保持 `onovich.github.io`。正式页面、`/PoeticTypewriter/health` 与门户首页均返回 HTTP 200，经过 Cloudflare。
+
+真实 Chromium 在 1440×900 和 390×844 两种视口通过：每日挑战加载生产 D1 题目、等待输入状态、Secure/HttpOnly/SameSite=Lax 且 Path 为 `/PoeticTypewriter/` 的 Cookie、无布局遮挡及横向溢出、自由模式键盘输入、无页面运行异常。生产未提交测试成绩；完整成绩校验流程在 staging 验证。截图位于 `.local/screenshots/production-daily-*.png`。
+
+无尾斜杠且带查询参数的正式地址由现有 GitHub Pages 返回 301，正确保留参数并跳转至 Worker 子路径；staging 的同类请求由 Worker 返回 308。生产测试验证跳转目标，不要求两环境状态码完全一致。门户首页继续保留原内容。
+
+此前 OAuth DNS 访问 403 和浏览器控制超时导致的人工步骤已完成，目前部署无需用户继续协助。
+
+## 可复现的本地检查
+
+在仓库根目录执行：
+
+```powershell
+npm ci
+npm ci --prefix api
+npm test --prefix api
+npm run cloudflare:check
+npm run smoke:cloudflare
+```
+
+本地 smoke 需要 `api/.dev.vars` 包含 `RUN_TOKEN_SECRET` 和 `COOKIE_SECURE=false`；此文件已被 Git 忽略。新环境可用 Node 的 `crypto.randomBytes(32)` 生成本地测试密钥，CI 已自动生成。不要复用生产密钥做本地测试。
+
+## 后续重新发布
+
+1. `cd api`，运行 `npx wrangler whoami`，核实账号与 `onovich.com` 的归属。
+2. 先查询已有 D1，避免重建同名资源。为预览和生产分别准备 `poetic-typewriter-staging`、`poetic-typewriter-production` 数据库，记录实际 ID。
+3. 在环境中设置 `CLOUDFLARE_ACCOUNT_ID`、对应的 `CLOUDFLARE_D1_DATABASE_ID`，以及该环境专用且持久保存的 `RUN_TOKEN_SECRET`（至少 32 字符）。本机可使用 OAuth；CI 还需要 `CLOUDFLARE_API_TOKEN`。
+4. 从仓库根目录执行 `npm run deploy:cloudflare -- staging`。脚本先构建和 dry-run，再应用迁移，最后同时上传代码、资源和密钥。临时密钥文件在 `.local/` 下创建，并在完成或失败时移除；密钥不打印。
+5. 对真实 `workers.dev/PoeticTypewriter/` 预览做 HTTPS、Cookie、每日挑战、排行榜和自由模式验收。
+6. 核对生产 DNS 代理及现有门户，执行 `npm run deploy:cloudflare -- production`，随后验收项目子路径和门户首页。无需再次询问已确认的部署路径。
+
+不要在每次发布时重新随机生成已有环境的签名密钥，否则未完成的 run token 会失效。脚本不替用户购买付费套餐。
+
+## GitHub Actions
+
+工作流仅手动触发，选择 staging 或 production；使用 `cloudflare-staging` / `cloudflare-production` GitHub Environments。每个 Environment 配置：
+
+- Variables：`CLOUDFLARE_ACCOUNT_ID`、`CLOUDFLARE_D1_DATABASE_ID`。
+- Secrets：`CLOUDFLARE_API_TOKEN`、`RUN_TOKEN_SECRET`。
+
+工作流先执行 API 测试与真实 Chromium smoke，通过后才部署。工作流随源码维护，GitHub Environment Secrets 尚未配置，不能直接运行远端部署。旧 GitHub Pages 工作流仍保留，迁移完成前不要直接关闭现有访问链路。
+
+## 仍需关注的已有边界
+
+页面已改为构建时生成 Tailwind CSS，并通过 Fontsource 将 Playfair Display 与 Special Elite 字体随站点托管（font-display: swap）。字体许可证随发布产物保留在 licenses/。轻量反作弊依赖客户端上报数据和服务端启发式校验，不代表严格可信的竞技成绩。生产网络延迟、配额与并发行为需要结合预览环境继续验证。
+
+## 配置依据
+
+- [Workers Static Assets 配置](https://developers.cloudflare.com/workers/static-assets/binding/)
+- [Workers Routes](https://developers.cloudflare.com/workers/configuration/routing/routes/)
+- [静态资源子目录部署](https://developers.cloudflare.com/workers/static-assets/routing/advanced/serving-a-subdirectory/)
+- [D1 batch 事务](https://developers.cloudflare.com/d1/worker-api/d1-database/)
+- [D1 查询与绑定参数限制](https://developers.cloudflare.com/d1/platform/limits/)
+
+以上配合本地 Wrangler 4.129.0 schema、CLI help 和生成的 runtime types 核对。
+
+## 加载优化（2026-09-07）
+
+移除 head 中阻塞解析的 Tailwind Play CDN 脚本以及 Google Fonts CSS import。使用 Tailwind 3/PostCSS 扫描 src 下模板生成静态样式，保持现有 v3 类名语义；Vite 为本站字体和样式生成带 hash 的资源 URL。
+
+完整本地浏览器回归通过，包括成绩校验、异常回退、桌面和手机竖屏布局及自由输入。线上验收额外阻止 Tailwind/Google Fonts 域名，检查不再请求这些资源。测试数据与生产分离。
+
+安装依赖后的 npm audit 报告现有 Vite/esbuild 开发工具链有 1 项 high、1 项 moderate；建议修复涉及 Vite 大版本升级，本次不混入该迁移。生产只发布静态构建产物，不运行 Vite 开发服务器。
+
+优化版已发布 staging 与 production。正式页面在两种视口下通过外部样式/字体域名阻断检查、每日题目加载和自由输入；门户另用 HTTP 检查确认 200 且保留 Onovich 内容。代理网络下首次复测总等待约 8.1 秒，其中 HTML 首字节已占 7.0 秒；同浏览器二次访问约 0.92 秒。此前相同测量脚本为 13.16 / 2.84 秒，但样本少且网络波动明显，不能把差值全归因于代码。资源记录确认不再请求 Tailwind CDN / Google Fonts，字体全部来自本站。

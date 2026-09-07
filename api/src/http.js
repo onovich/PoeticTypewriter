@@ -30,6 +30,7 @@ export function jsonResponse(request, env, data, init = {}) {
   const headers = buildCorsHeaders(request, env);
   mergeHeaders(headers, init.headers);
   headers.set('Content-Type', 'application/json; charset=utf-8');
+  headers.set('Cache-Control', 'no-store');
 
   return new Response(JSON.stringify(data), {
     status: init.status ?? 200,

@@ -48,23 +48,27 @@ export async function createSignedRunToken(payload, secret) {
 }
 
 export async function verifySignedRunToken(token, secret) {
-  if (!token || !token.includes('.')) {
+  if (typeof token !== 'string' || !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token)) {
     return null;
   }
 
   const [payloadPart, signaturePart] = token.split('.');
   const key = await importHmacKey(secret);
-  const isValid = await crypto.subtle.verify(
-    'HMAC',
-    key,
-    base64UrlDecode(signaturePart),
-    textEncoder.encode(payloadPart),
-  );
+  try {
+    const isValid = await crypto.subtle.verify(
+      'HMAC',
+      key,
+      base64UrlDecode(signaturePart),
+      textEncoder.encode(payloadPart),
+    );
 
-  if (!isValid) {
+    if (!isValid) {
+      return null;
+    }
+
+    const payloadJson = textDecoder.decode(base64UrlDecode(payloadPart));
+    return JSON.parse(payloadJson);
+  } catch {
     return null;
   }
-
-  const payloadJson = textDecoder.decode(base64UrlDecode(payloadPart));
-  return JSON.parse(payloadJson);
 }

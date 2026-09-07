@@ -2,6 +2,8 @@
 
 这个目录承载每日挑战模式的 Cloudflare Worker + D1 服务端工程。
 
+2026-09-07：新的同域部署入口为 `wrangler.cloudflare.jsonc` 与仓库根目录的 `npm run deploy:cloudflare -- staging`，操作和验证结果见 [Cloudflare 部署说明](../docs/CLOUDFLARE_DEPLOYMENT.md)。下文 `wrangler.toml` 流程保留用于独立 API 的本地联调，不是本次主站发布入口。当天题目现在也会在首次访问时自动生成，无需每天手工执行 seed。
+
 ## 当前范围
 
 - 已提供每日挑战接口骨架：`GET /health`、`GET /v1/challenge/today`、`POST /v1/runs/start`、`POST /v1/runs/complete`

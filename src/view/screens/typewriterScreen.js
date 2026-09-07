@@ -4,7 +4,7 @@ export function renderTypewriterScreen() {
   return `
     <div class="w-full h-screen flex flex-col justify-between">
       <div id="stage" class="relative flex-1 w-full overflow-hidden">
-        <div id="challenge-stats-panel" class="absolute left-1/2 top-4 z-30 w-[min(92vw,860px)] -translate-x-1/2 px-2 sm:px-4" hidden>
+        <div id="challenge-stats-panel" class="relative z-30 w-[min(92vw,860px)] mx-auto mt-4 px-2 sm:px-4" hidden>
           <section class="challenge-stats-shell mx-auto">
             <div class="challenge-stats-topline">
               <span id="challenge-stats-mode" class="challenge-stats-pill">Daily Challenge</span>
@@ -38,7 +38,7 @@ export function renderTypewriterScreen() {
             <p id="challenge-stats-note" class="challenge-stats-note">Daily stats sync here once the run starts.</p>
           </section>
         </div>
-        <div class="absolute top-20 w-full flex justify-center px-4">
+        <div class="poem-target-area relative w-full flex justify-center px-4">
           <div id="target-poem" class="target-text flex flex-wrap justify-center"></div>
         </div>
         <svg id="string-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>

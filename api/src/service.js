@@ -1,4 +1,5 @@
 import { buildPlayerCookie, PLAYER_COOKIE_NAME, readCookie } from './cookies.js';
+import { ensureDailyChallenge } from './dailyChallenge.js';
 import { errorResponse, jsonResponse, readJson } from './http.js';
 import {
   advancePlayerProgress,
@@ -8,7 +9,6 @@ import {
   completeRun,
   getAllTimeBest,
   getAllTimeRank,
-  getChallengeByDate,
   getChallengeById,
   getChallengeItemById,
   getChallengeItemByPosition,
@@ -133,7 +133,7 @@ async function buildStatsSnapshot(db, playerId, challengeId, dailyBestCps) {
 export async function handleGetToday(request, env) {
   const playerContext = await resolvePlayerContext(request, env);
   const challengeDate = getTodayIsoDate();
-  const challenge = await getChallengeByDate(env.DB, challengeDate);
+  const challenge = await ensureDailyChallenge(env.DB, challengeDate);
 
   if (!challenge) {
     return errorResponse(request, env, 404, 'challenge_not_found', '今天的挑战内容还没有入库。', {

@@ -31,15 +31,15 @@ export default {
       }
 
       if (request.method === 'GET' && url.pathname === '/v1/challenge/today') {
-        return handleGetToday(request, env);
+        return await handleGetToday(request, env);
       }
 
       if (request.method === 'POST' && url.pathname === '/v1/runs/start') {
-        return handleStartRun(request, env);
+        return await handleStartRun(request, env);
       }
 
       if (request.method === 'POST' && url.pathname === '/v1/runs/complete') {
-        return handleCompleteRun(request, env);
+        return await handleCompleteRun(request, env);
       }
 
       return errorResponse(request, env, 404, 'not_found', '未找到对应的 API 路由。');

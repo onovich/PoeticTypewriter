@@ -1,10 +1,10 @@
 # Poetic Typewriter 在线挑战架构方案
 
-## 重大警示：本文不是当前执行方案
+## 方案状态（2026-09-07 更新）
 
 - 本文形成于一次错误决策分支：在用户已明确提供腾讯云轻服务器背景并要求基于现有服务器定方案的情况下，错误地将路线收束为 Cloudflare Worker + D1。
-- 该路线现已被用户明确否决；本文只作为被否决方案的留档与复盘材料，不得作为当前实施依据。
-- 当前有效决策：月底再基于腾讯云轻服务器重新设计正式部署方案。
+- 用户经过进一步了解后，目前倾向采用 Cloudflare 方案，已要求撤销此前否决约束。本文恢复为当前优先方向的架构草案，现有 Worker + D1 工程可继续评估和完善。
+- 原腾讯云优先及月底重规划决定已被取代。文中的拓扑和阶段计划需在实施前核对当前代码；本次更新不表示草案全部细节已定稿或生产部署已完成。此前擅自改变用户路线的历史教训仍保留。
 
 ## 文档目的
 
@@ -35,16 +35,19 @@
 
 ## 目标托管方案
 
+2026-09-07 实施更新：用户已确认保留现有门户，项目部署于 `https://game.onovich.com/PoeticTypewriter/`。Workers Static Assets + 同域 API 均使用该子路径；预览在独立 `workers.dev` 地址下使用相同路径。生产使用 Workers Routes，不使用接管整个主机名的 Custom Domain。具体操作见 `CLOUDFLARE_DEPLOYMENT.md`。
+
 ## 结论
 
 推荐把“静态前端”和“API 服务”都迁移到 Cloudflare 体系，避免后续仓库私有化时继续受 GitHub Pages 限制。
 
 ### 生产环境推荐拓扑
 
-- 主站：静态前端，部署到 Cloudflare Pages 或 Cloudflare Workers Static Assets。
+- 主站：静态前端，当前配置采用 Cloudflare Workers Static Assets。
 - API：部署到 Cloudflare Workers。
 - 数据库：Cloudflare D1。
-- 域名：主站域名留给网站本体，API 使用独立子域名，先以 `api.<your-domain>` 作为占位。
+- 主站域名：`game.onovich.com`，由用户于 2026-09-07 指定，不使用 `blog.onovich.com`。此处记录部署目标，DNS 和 Cloudflare 域名绑定尚待实施核验。
+- API 地址：预览与生产均为同域 `/PoeticTypewriter/v1/...`，Worker 内部转发至原 `/v1/...` handler。
 - 自动化：继续使用 GitHub Actions 触发构建与 Wrangler CLI 部署，无需依赖面板操作。
 
 ### 过渡策略

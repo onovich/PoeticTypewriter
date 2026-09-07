@@ -1,0 +1,46 @@
+name: Deploy to Cloudflare
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Cloudflare environment
+        type: choice
+        options: [staging, production]
+        default: staging
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-${{ inputs.target }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: cloudflare-${{ inputs.target }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            api/package-lock.json
+      - run: npm ci
+      - run: npm ci --prefix api
+      - run: npm test --prefix api
+      - run: npx playwright install --with-deps chromium
+      - name: Set local test secret
+        run: node -e "require('fs').writeFileSync('api/.dev.vars', 'COOKIE_SECURE=false\nRUN_TOKEN_SECRET=' + require('crypto').randomBytes(32).toString('hex') + '\n')"
+      - run: npm run smoke:cloudflare
+      - name: Deploy selected environment
+        run: npm run deploy:cloudflare -- ${{ inputs.target }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_D1_DATABASE_ID: ${{ vars.CLOUDFLARE_D1_DATABASE_ID }}
+          RUN_TOKEN_SECRET: ${{ secrets.RUN_TOKEN_SECRET }}
