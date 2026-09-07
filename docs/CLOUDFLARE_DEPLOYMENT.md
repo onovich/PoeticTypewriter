@@ -31,9 +31,9 @@
 
 ## 远端部署结果
 
-- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `81df5b48-ac4a-4f45-be9c-e5bded3fcb15`。
+- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `a3b5d3e9-d633-4849-a9ec-dc2c3e62eda4`。
 - Staging D1：`158c8d4c-78bf-4e80-97f6-7ac0a369b492`。
-- Production Worker：`poetic-typewriter`，版本 `3527909b-7037-4e8c-8bf9-0c0869e6e2a3`，关闭 workers.dev。
+- Production Worker：`poetic-typewriter`，版本 `963c2145-bb06-4c59-bcfd-cf83eaa32513`，关闭 workers.dev。
 - Production D1：`7cf4511c-9da0-441e-9f38-f000ed0f64bd`。
 - 已通过 API 确认生产仅绑定 `game.onovich.com/PoeticTypewriter` 与 `game.onovich.com/PoeticTypewriter/*` 两条路由，门户首页保留。
 - 真实 staging HTTPS 浏览器 smoke 全通过：pending、accepted、suspicious、rejected、失败回退、Cookie 作用域、308 跳转、路径隔离、桌面及手机竖屏布局、自由模式键盘输入。日志位于 `.local/staging-browser-smoke.log`。测试成绩仅写 staging。
@@ -167,3 +167,6 @@ HTML 预加载两款首屏 WOFF2 字体，Vite 自动转换为与 CSS 相同的�
 自由模式每次从当天未出现的句子中随机取一句，出题即记为已出现，刷新、重开页面和来回切换模式后继续使用 `poetic-typewriter.free-deck.v1` 缓存。整库用完后重新开始不重复循环，避免循环最后一句与下一轮第一句相同。按与每日挑战相同的 UTC 日期换日（北京时间 08:00），保留一天的记录；顺序访问的同源标签页共享进度。同时瞬间出题的多个标签页受 localStorage 非事务性限制，不保证互斥分配。存储不可用时当前页面内仍不重复。
 
 验证覆盖 366 个日期的每日十句唯一性与稳定性、415 句格式和去重、跨刷新/标签页的整库循环、换日及异常存储。真实 D1/API 测试完整提交十句，并验证旧 100 句集合停止于十句、拒绝第十一句且保留既有记录；浏览器验证自由模式完成后换句、刷新记忆和模式切换记忆。
+本轮源码 `c994c55` 已推送 main 并发布：staging `a3b5d3e9-d633-4849-a9ec-dc2c3e62eda4`，production `963c2145-bb06-4c59-bcfd-cf83eaa32513`。预览完整浏览器回归通过；生产确认 1/10、自由模式完成自动换句、刷新和模式切换记忆，以及门户 200。两环境只读 D1 查询确认今天前十句 `playable_count=10` 且 `unique_count=10`，原 `stored_count=100` 保持，未删除历史题目或成绩。生产验收没有完成或提交每日挑战成绩。临时网络转发已关闭，密钥上传临时文件已清除。
+
+证据：`.local/poems-smoke-final.log`、`.local/poems-staging-smoke.log`、`.local/poems-production-verification.log`、`.local/poems-staging-unique.log`、`.local/poems-production-unique.log`、`.local/screenshots/production-ten-poems.png`。
