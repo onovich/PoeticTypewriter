@@ -12,6 +12,7 @@ const DEFAULT_STATS = {
 };
 
 const DEFAULT_SNAPSHOT = {
+  playerId: null,
   challengeId: null,
   challengeDate: null,
   completedItems: 0,

@@ -6,7 +6,7 @@ This is a reversible visual experiment, not a production release.
 - Baseline: `be0b24b` (includes the SEO center's latest documentation); previous UI commit: `4d94dae`.
 - Production remains at Worker version `1f0f4f28-40d6-4ea4-b768-267a990d112a` with the original full-width keyboard.
 - Preview: https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/?mode=daily
-- Preview Worker version: `db9055a8-3c8a-4488-8825-fd0da8e00077`.
+- Preview Worker version: `a93d3e0f-1a35-4894-bd9c-c1078c39d888`.
 
 ## Experiment
 
@@ -31,3 +31,13 @@ If accepted later, merge the complete branch after checking current main, rerun 
 Daily bootstrap keeps progress, statistics, notes and verse invisible while reserving their geometry. The loading sentence is removed. Resolved content fades in over 280ms; navigation and keyboard stay visible. Starting a run and submitting a score do not restart this animation. Completed-day content and failure fallback remain available; reduced-motion preferences skip the reveal animation. The stage exposes `aria-busy` during loading.
 
 `scripts/loadingBrowserChecks.js` uses a held API response to verify blank loading, occupied layout, arrival animation, unchanged coordinates, completed days and reduced motion in Chinese and English. Full local regression and the deployed preview both passed: `.local/quiet-loading-smoke.log`, `.local/quiet-loading-verification.log`. This is a follow-up on the same preview branch; main and production remain unchanged.
+
+## Personal daily score archive
+
+The existing backend daily best is the requesting player's validated best; daily rank is that player's position among all players for the challenge. No world-best value is displayed. Labels now say 我的今日最佳 / 我的今日排名 and My best / My rank in the daily panel.
+
+`poetic-typewriter.score-archive.v1` stores one record per server player ID, challenge date and challenge ID, retaining prior dates. Each record contains recent speed, validated personal best, validation status and completed count. Refresh and mode switches restore the latest local result for matching progress. Server best values, including zero, remain authoritative; rankings are not cached. Changed server progress discards a potentially stale recent result. Suspect or rejected result status is retained without promoting its speed into the best. Corrupt or unavailable storage cannot break play; write failures retain current-page memory.
+
+The today API adds the requesting player's opaque `playerId` for cache isolation. It is not an authentication token. Clearing the player cookie results in a separate identity, while clearing local storage removes persistent local history. No login or cross-device local archive is implied. Older recent results not previously cached cannot be reconstructed from this archive; existing server personal bests are saved on the next load. The quiet-loading behavior still waits for the current server response before revealing cached scores.
+
+Validation: root tests cover archive recreation, server corrections, date/player separation, validation status, corrupt storage and quota errors; the real D1/API test verifies another player sees zero personal best despite a scored player existing. Browser tests cover a mocked completed result, reload, mode switching, date change and identity change. Full browser regression and online preview tests pass; the real preview API returns a stable scope ID. Evidence: `.local/local-scores-smoke.log`, `.local/local-scores-validation.log`, `.local/local-scores-verification.log`. No production deployment or real score submission.

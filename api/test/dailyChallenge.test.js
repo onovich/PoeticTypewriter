@@ -46,6 +46,7 @@ test('legacy 100-item challenge finishes at ten through real API and preserves o
     const get = () => api.fetch(new Request('https://example.com/v1/challenge/today', { headers }), env);
     const post = (path, body) => api.fetch(new Request(`https://example.com/v1/runs/${path}`, { method: 'POST', headers, body: JSON.stringify(body) }), env);
     let state = await (await get()).json();
+    assert.equal(state.playerId, (await db.prepare('SELECT id FROM players WHERE anon_id = ?').bind('ten-sentences-test').first()).id);
     assert.equal(state.totalItems, 10);
     const seen = new Set();
     for (let index = 0; index < 10; index++) {
@@ -74,5 +75,12 @@ test('legacy 100-item challenge finishes at ten through real API and preserves o
     assert.equal((await db.prepare('SELECT COUNT(*) AS count FROM challenge_items').first()).count, 100);
     assert.equal((await db.prepare('SELECT COUNT(*) AS count FROM runs').first()).count, 10);
     assert.equal((await db.prepare('SELECT completed_items FROM player_challenge_progress').first()).completed_items, 99);
+    assert(state.stats.dailyBestCps > 0);
+    const other = await (await api.fetch(new Request('https://example.com/v1/challenge/today', {
+      headers: { Cookie: 'pt_player=another-player' },
+    }), env)).json();
+    assert.notEqual(other.playerId, state.playerId);
+    assert.equal(other.stats.dailyBestCps, 0, 'daily best belongs to the requesting player, not the world leader');
+    assert.equal(other.stats.dailyRank, null);
   } finally { await mf.dispose(); }
 });

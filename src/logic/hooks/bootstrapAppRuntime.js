@@ -7,6 +7,7 @@ import { createI18n } from '../i18n.js';
 import { syncPresentation } from '../../view/components/runtimePresentation.js';
 import { createTransitions } from '../../view/transitions.js';
 import { createFreePoemDeck } from '../services/freePoemDeck.js';
+import { createLocalScoreArchive } from '../services/localScoreArchive.js';
 
 export async function bootstrapAppRuntime(rootElement) {
   const config = {
@@ -19,6 +20,7 @@ export async function bootstrapAppRuntime(rootElement) {
   const i18n = createI18n({ storage, languages: navigator.languages ?? [navigator.language] });
   const freeDeck = createFreePoemDeck({ poems: FREE_MODE_POEMS, storage });
   const store = createChallengeSessionStore();
+  const scoreArchive = createLocalScoreArchive(storage);
   const client = config.apiBaseUrl ? new CompetitionClient({ baseUrl: config.apiBaseUrl }) : null;
   const transition = createTransitions(rootElement);
   let generation = 0;
@@ -99,6 +101,7 @@ export async function bootstrapAppRuntime(rootElement) {
   const bridge = { app, config, getSnapshot: () => store.getSnapshot() };
   window.__POETIC_TYPEWRITER__ = bridge;
   store.subscribe(snapshot => {
+    if (snapshot.mode === APP_MODES.DAILY_CHALLENGE && ['awaiting-first-input', 'completed'].includes(snapshot.status)) scoreArchive.save(snapshot);
     runtime.mode = snapshot.mode;
     bridge.mode = snapshot.mode;
     bridge.snapshot = snapshot;
@@ -126,9 +129,9 @@ export async function bootstrapAppRuntime(rootElement) {
       if (generation !== requestGeneration) return;
       app.setPoems(nextPoems(today.currentItem), { loadImmediately: true, resetIndex: true });
       store.patch({
-        challengeDate: today.challengeDate, challengeId: today.challengeId,
+        playerId: today.playerId, challengeDate: today.challengeDate, challengeId: today.challengeId,
         completedItems: today.completedItems, currentItem: today.currentItem,
-        stats: { ...today.stats, leaderboardEligible: null },
+        stats: { ...scoreArchive.restore(today), leaderboardEligible: null },
         totalItems: today.totalItems, status: today.currentItem ? 'awaiting-first-input' : 'completed',
       });
     }).catch(error => {

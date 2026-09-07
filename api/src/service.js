@@ -155,6 +155,7 @@ export async function handleGetToday(request, env) {
     {
       challengeDate,
       challengeId: challenge.id,
+      playerId: playerContext.player.id,
       completedItems: Math.min(progress.completed_items, challenge.item_count),
       currentItem: currentItem
         ? {
