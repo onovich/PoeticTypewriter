@@ -7,6 +7,7 @@ import { mkdirSync } from 'node:fs';
 import { chromium } from 'playwright';
 import { checkLocalizedInterface } from './interfaceBrowserChecks.js';
 import { checkPoemRotation } from './poemBrowserChecks.js';
+import { checkStableStats } from './stableStatsBrowserChecks.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '..');
@@ -32,7 +33,7 @@ const SCENARIOS = [
     expectedFlags: [],
     expectedValidationStatus: 'accepted',
     name: 'accepted',
-    noteIncludes: 'Last sentence',
+    noteIncludes: '',
     shouldAdvance: true,
   },
   {
@@ -222,7 +223,7 @@ function assertDailyReadyState(initialState) {
   assert(initialState.dataLeaderboardEligible === 'pending', 'daily ready: leaderboard state should be pending');
   assert(initialState.dataValidationStatus === 'idle', 'daily ready: validation status should be idle');
   assert(initialState.note === '', 'daily ready: no redundant instruction');
-  assert(initialState.dailyBest === '--', 'daily ready: daily best should be empty');
+  assert(initialState.dailyBest.startsWith('--'), 'daily ready: daily best should be empty');
   assert(initialState.dailyRank === '--', 'daily ready: daily rank should be empty');
   assert(initialState.flags.length === 0, 'daily ready: should not have suspicious flags');
 }
@@ -333,7 +334,7 @@ async function waitForFallbackFree(page) {
 function assertScenarioResult(initialState, scenario, result) {
   assert(result.summary.validationStatus === scenario.expectedValidationStatus, `${scenario.name}: wrong validation status`);
   assert(result.dataValidationStatus === scenario.expectedValidationStatus, `${scenario.name}: wrong panel validation status`);
-  assert(result.note?.includes(scenario.noteIncludes), `${scenario.name}: note missing expected text`);
+  assert(scenario.expectedValidationStatus === 'accepted' ? result.note === '' : result.note?.includes(scenario.noteIncludes), `${scenario.name}: note missing expected text`);
 
   const expectedLeaderboardEligible = scenario.expectedValidationStatus === 'accepted';
   assert(result.summary.leaderboardEligible === expectedLeaderboardEligible, `${scenario.name}: wrong leaderboard eligibility`);
@@ -522,8 +523,9 @@ async function main() {
     const viewports = CLOUDFLARE ? await runViewportChecks(browser) : [];
     const localization = CLOUDFLARE ? await checkLocalizedInterface(browser, WEB_BASE_URL, path.join(ROOT_DIR, '.local', 'screenshots')) : null;
     const poemRotation = CLOUDFLARE ? await checkPoemRotation(browser, WEB_BASE_URL) : null;
+    const stableStats = CLOUDFLARE ? await checkStableStats(browser, WEB_BASE_URL) : null;
 
-    console.log(JSON.stringify({ fallback: fallbackResult, scenarios: results, viewports, localization, poemRotation }, null, 2));
+    console.log(JSON.stringify({ fallback: fallbackResult, scenarios: results, viewports, localization, poemRotation, stableStats }, null, 2));
   } finally {
     if (browser) {
       await browser.close();

@@ -15,7 +15,7 @@ export async function checkLocalizedInterface(browser, url, directory) {
       await ready(page);
       assert.equal(await page.locator('html').getAttribute('lang'), 'zh-CN');
       assert.equal(await page.locator('[data-mode="free"]').textContent(), '自由模式');
-      assert.equal(await page.locator('.challenge-metric').count(), 3);
+      assert.equal(await page.locator('.challenge-metric').count(), 4);
       const text = await page.evaluate(() => window.__POETIC_TYPEWRITER__.snapshot.currentItem.text);
       await page.keyboard.type(text[0]);
       await page.waitForFunction(() => parseFloat(document.querySelector('#challenge-elapsed').textContent) >= 0.2);

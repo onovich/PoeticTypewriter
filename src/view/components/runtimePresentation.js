@@ -24,13 +24,15 @@ export function syncPresentation(root, snapshot, i18n) {
   panel.dataset.validationStatus = snapshot.stats.validationStatus ?? 'idle';
   const current = snapshot.currentItem ? snapshot.completedItems + 1 : snapshot.totalItems;
   root.querySelector('#challenge-stats-progress').textContent = t('progress', { current, total: snapshot.totalItems });
-  const cps = value => typeof value === 'number' && value > 0 ? t('cps', { value: value.toFixed(2) }) : '--';
-  const best = root.querySelector('#challenge-stats-daily-best');
-  best.textContent = snapshot.stats.dailyBestCps > 0 ? snapshot.stats.dailyBestCps.toFixed(2) : '--';
-  if (snapshot.stats.dailyBestCps > 0) {
+  for (const [selector, value] of [
+    ['#challenge-stats-recent', snapshot.stats.recentCps],
+    ['#challenge-stats-daily-best', snapshot.stats.dailyBestCps],
+  ]) {
+    const element = root.querySelector(selector);
+    element.textContent = typeof value === 'number' && value > 0 ? value.toFixed(2) : '--';
     const unit = document.createElement('small');
     unit.textContent = t('speedUnit');
-    best.append(unit);
+    element.append(unit);
   }
   root.querySelector('#challenge-stats-daily-rank').textContent = snapshot.stats.dailyRank > 0 ? `#${snapshot.stats.dailyRank}` : '--';
   root.querySelector('#challenge-elapsed').setAttribute('aria-label', t('elapsed'));
@@ -38,9 +40,8 @@ export function syncPresentation(root, snapshot, i18n) {
   if (snapshot.status === 'fallback-free') note = t('fallback');
   else if (snapshot.error) note = t('error');
   else if (snapshot.status === 'completed') note = t('completed');
-  else if (snapshot.status === 'submitting') note = t('submitting');
   else if (['booting', 'loading-challenge'].includes(snapshot.status)) note = t('loading');
-  else if (snapshot.stats.validationStatus) note = t(snapshot.stats.validationStatus, { speed: cps(snapshot.stats.recentCps) });
+  else if (['suspicious', 'rejected'].includes(snapshot.stats.validationStatus)) note = t(snapshot.stats.validationStatus);
   const noteElement = root.querySelector('#challenge-stats-note');
   noteElement.textContent = note;
   noteElement.hidden = !note;

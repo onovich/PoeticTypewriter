@@ -170,3 +170,10 @@ HTML 预加载两款首屏 WOFF2 字体，Vite 自动转换为与 CSS 相同的�
 本轮源码 `c994c55` 已推送 main 并发布：staging `a3b5d3e9-d633-4849-a9ec-dc2c3e62eda4`，production `963c2145-bb06-4c59-bcfd-cf83eaa32513`。预览完整浏览器回归通过；生产确认 1/10、自由模式完成自动换句、刷新和模式切换记忆，以及门户 200。两环境只读 D1 查询确认今天前十句 `playable_count=10` 且 `unique_count=10`，原 `stored_count=100` 保持，未删除历史题目或成绩。生产验收没有完成或提交每日挑战成绩。临时网络转发已关闭，密钥上传临时文件已清除。
 
 证据：`.local/poems-smoke-final.log`、`.local/poems-staging-smoke.log`、`.local/poems-production-verification.log`、`.local/poems-staging-unique.log`、`.local/poems-production-unique.log`、`.local/screenshots/production-ten-poems.png`。
+## 安静统计栏与固定布局（2026-09-07）
+
+移除“正在保存成绩”和正常成功后的“上一句”提示，将最近成绩放到今日最佳之前，固定为本句用时、最近成绩、今日最佳、今日排名四列。最近成绩与今日最佳的单位始终占位，统计行固定高度；错误/可疑/拒绝/完成提示使用预留提示槽，因此状态变化不再推挤诗句或键盘。底层提交过程和校验逻辑保持。
+
+顶部模式和语言控件改为无背景、无卡片边框的轻量文字导航，用短细线和微小圆点区分当前选择，保留 44px 点击高度与键盘焦点轮廓。统计改用更小的衬线数字、低调暖灰色、居中四列和两侧短分隔线；中英文、320–1440px 和已有淡入淡出均保留。
+
+本地完整浏览器回归通过。新增延迟提交回归在中英 320/390/1440px 下模拟等待服务端与 1.21 字符/秒成功响应，严格比较诗句纵坐标、统计高度和键盘坐标：提交中、成功返回及异常提示出现时均与输入前一致。截图位于 `.local/screenshots/localized-*.png`，日志为 `.local/quiet-ui-smoke.log`。
