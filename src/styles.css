@@ -162,165 +162,56 @@ body {
   opacity: 0;
 }
 
-.challenge-stats-shell {
-  pointer-events: none;
-  background:
-    linear-gradient(135deg, rgba(34, 28, 24, 0.82), rgba(15, 14, 13, 0.74)),
-    rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(229, 214, 185, 0.22);
-  border-radius: 24px;
-  box-shadow:
-    0 24px 45px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  color: #f5ecdf;
-  max-width: 860px;
-  padding: 0.9rem 1rem 1rem;
-  backdrop-filter: blur(12px);
-}
-
-.challenge-stats-topline {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  justify-content: space-between;
-  margin-bottom: 0.85rem;
-}
-
-.challenge-stats-pill,
-.challenge-stats-progress,
-.challenge-stats-status,
-.challenge-stats-eligibility {
-  font-family: 'Special Elite', monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.challenge-stats-pill {
-  background: rgba(255, 237, 204, 0.12);
-  border: 1px solid rgba(255, 237, 204, 0.18);
-  border-radius: 999px;
-  color: #ffdfa9;
-  padding: 0.35rem 0.7rem;
-}
-
-.challenge-stats-progress,
-.challenge-stats-status,
-.challenge-stats-eligibility {
-  color: rgba(245, 236, 223, 0.78);
-}
-
-.challenge-stats-eligibility {
-  border: 1px solid rgba(245, 236, 223, 0.18);
-  border-radius: 999px;
-  padding: 0.35rem 0.7rem;
-}
-
-.challenge-stats-grid {
-  display: grid;
-  gap: 0.65rem;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-}
-
-.challenge-stats-card {
-  background: linear-gradient(180deg, rgba(255, 244, 225, 0.08), rgba(255, 244, 225, 0.02));
-  border: 1px solid rgba(255, 244, 225, 0.08);
-  border-radius: 18px;
-  min-width: 0;
-  padding: 0.8rem 0.9rem;
-}
-
-.challenge-stats-label {
-  color: rgba(245, 236, 223, 0.56);
-  display: block;
-  font-family: 'Special Elite', monospace;
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  margin-bottom: 0.55rem;
-  text-transform: uppercase;
-}
-
-.challenge-stats-value {
-  color: #fff7eb;
-  display: block;
-  font-size: clamp(0.92rem, 1.8vw, 1.2rem);
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  min-height: 1.5em;
-}
-
-.challenge-stats-note {
-  color: rgba(245, 236, 223, 0.72);
-  font-size: 0.86rem;
-  line-height: 1.4;
-  margin: 0.85rem 0 0;
-  min-height: 1.4em;
-}
-
-.challenge-stats-flags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  margin-top: 0.8rem;
-}
-
-.challenge-stats-flag {
-  border: 1px solid rgba(255, 244, 225, 0.14);
-  border-radius: 999px;
-  color: rgba(255, 244, 225, 0.88);
-  font-family: 'Special Elite', monospace;
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  padding: 0.32rem 0.58rem;
-  text-transform: uppercase;
-  background: rgba(255, 244, 225, 0.05);
-}
-
-#challenge-stats-panel[data-validation-status='suspicious'] .challenge-stats-status {
-  color: #ffd27a;
-}
-
-#challenge-stats-panel[data-validation-status='accepted'] .challenge-stats-status {
-  color: #9ee3a3;
-}
-
-#challenge-stats-panel[data-validation-status='rejected'] .challenge-stats-status {
-  color: #ff9b91;
-}
-
-#challenge-stats-panel[data-leaderboard-eligible='true'] .challenge-stats-eligibility {
-  border-color: rgba(158, 227, 163, 0.32);
-  color: #9ee3a3;
-}
-
-#challenge-stats-panel[data-leaderboard-eligible='false'] .challenge-stats-eligibility {
-  border-color: rgba(255, 193, 145, 0.28);
-  color: #ffc191;
-}
-
-#challenge-stats-panel[data-leaderboard-eligible='pending'] .challenge-stats-eligibility {
-  border-color: rgba(245, 236, 223, 0.16);
-  color: rgba(245, 236, 223, 0.72);
-}
-
-@media (max-width: 900px) {
-  .challenge-stats-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
+/* A quiet brass rule and three readings leave the poem room to breathe. */
+.app-shell { height: 100dvh; }
+.app-toolbar { position: relative; display: flex; align-items: center; justify-content: center; gap: 24px; padding: 20px 20px 0; flex: 0 0 auto; z-index: 40; font-family: system-ui, sans-serif; }
+.mode-tabs { padding: 0; gap: 4px; }
+.mode-tab { padding: 10px 18px; border-radius: 6px; }
+.locale-switch { display: flex; border-left: 1px solid #514737; padding-left: 16px; gap: 4px; }
+.locale-switch button { min-width: 40px; min-height: 44px; border: 1px solid transparent; border-radius: 4px; color: #b6ad9e; font-size: 12px; }
+.locale-switch button[aria-pressed='true'] { color: #f1d4a1; border-color: #65523a; background: #28231c; }
+.locale-switch button:focus-visible { outline: 2px solid #f1d4a1; outline-offset: 3px; }
+#challenge-stats-panel { width: min(88%, 660px); margin: 32px auto 0; position: relative; z-index: 30; }
+.challenge-stats-shell { color: #e7e0d4; font-family: system-ui, sans-serif; }
+.challenge-stats-topline { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; color: #baaa8e; font-size: 12px; letter-spacing: .03em; }
+.challenge-rule { height: 1px; background: #4a4031; flex: 1; }
+.challenge-stats-grid { display: grid; grid-template-columns: 1.15fr 1.3fr 1fr; gap: 24px; }
+.challenge-metric { min-width: 0; border-left: 1px solid #38342d; padding-left: 24px; }
+.challenge-metric:first-child { border-left: 0; padding-left: 0; }
+.challenge-metric > span { display: block; color: #b2aa9c; font-size: 12px; margin-bottom: 8px; }
+.challenge-metric strong { display: block; font-family: 'Playfair Display', Georgia, serif; font-size: clamp(16px, 2.2vw, 24px); font-weight: 400; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.challenge-metric-time strong { color: #edce96; }
+.challenge-stats-note { position: relative; z-index: 30; width: min(88%, 660px); margin: 16px auto 0; color: #baaa8e; font: 12px/1.5 system-ui, sans-serif; }
+[hidden] { display: none !important; }
+#stage[data-active-mode='daily-challenge'] .poem-target-area { padding-top: 44px; }
+#stage[data-active-mode='free'] .poem-target-area { padding-top: 80px; }
+.target-text { color: #99948a; }
+.key-legend { display: inline-block; }
+.skeuo-key[data-key='Backspace'] { width: 80px; flex: 0 0 80px; padding-inline: 0; }
+.challenge-metric strong small { display: block; margin-top: 3px; font: 11px/1.3 system-ui, sans-serif; color: #b2aa9c; }
 @media (max-width: 640px) {
-  .challenge-stats-shell {
-    border-radius: 20px;
-    padding: 0.8rem 0.85rem 0.9rem;
-  }
-
-  .challenge-stats-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .challenge-stats-note {
-    font-size: 0.8rem;
-  }
+  .app-toolbar { gap: 12px; padding: 12px 12px 0; }
+  .skeuo-key[data-key='Backspace'] { width: 60px; flex-basis: 60px; }
+  .mode-tab { padding: 10px 12px; font-size: 12px; }
+  .locale-switch { padding-left: 8px; gap: 0; }
+  .locale-switch button { min-width: 32px; }
+  #challenge-stats-panel { margin-top: 28px; }
+  .challenge-stats-grid { gap: 12px; }
+  .challenge-metric { padding-left: 12px; }
+  .challenge-metric > span { font-size: 11px; }
+  .challenge-metric strong { font-size: 16px; }
+  #stage[data-active-mode='daily-challenge'] .poem-target-area { padding-top: 36px; }
+}
+@media (max-width: 359px) {
+  .app-toolbar { gap: 6px; padding-inline: 8px; }
+  .mode-tab { padding-inline: 8px; }
+  .locale-switch { padding-left: 4px; }
+  .locale-switch button { min-width: 28px; }
+  .skeuo-key { width: 27px; flex-shrink: 0; }
+  .skeuo-key-wide { width: auto; }
+  .skeuo-key[data-key=' '] { width: 144px; }
+  .challenge-metric strong { font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .target-text, .skeuo-key { transition: none; }
 }

@@ -144,3 +144,12 @@ HTML 预加载两款首屏 WOFF2 字体，Vite 自动转换为与 CSS 相同的�
 用户切换网络后，curl 的 TLS 通道恢复但 Node 仍间歇断连。本机使用忽略目录 `.local/cfTransport.py` 的临时回环转发，仅允许官方 Cloudflare API 与 OAuth token 端点，保持上游证书校验，仅对 curl 握手失败做有限重试。现有 OAuth 已成功刷新，无重新登录或更换签名密钥。此助手并非生产依赖或持久系统代理设置；发布后关闭，临时密钥文件已自动清除。
 
 本机证据（均已忽略）：`.local/release-staging-resumed.log`、`.local/release-production-resumed.log`、`.local/staging-browser-resumed.log`、`.local/staging-release-verification.log`、`.local/production-release-verification.log`、`.local/screenshots/production-release-390.png` 和 `production-release-1440.png`。GitHub Actions 的 Cloudflare Environment Secrets 配置状态不变。
+## 全站本地化、精简面板与切换动画（2026-09-07）
+
+新增简体中文/英文界面：右上角中/EN 手动切换，优先使用 `poetic-typewriter.locale` 本地缓存，否则采用浏览器首选语言（zh 系列使用简体中文，其余回退英文）。存储受限时仍可正常切换。覆盖导航、文档标题、键盘功能键和辅助标签、时间/速度单位、挑战进度、结果和失败提示。英文打字题目保留原文和判分规则。
+
+每日面板精简为一条进度线和本句用时、今日最佳、今日排名三项读数，删除重复模式标题、常驻排名资格/技术状态、历史最佳和历史排名卡片。上一句速度、未计排名、拒绝或失败等必要信息只用一行提示展示。速度单位分行，保证窄屏显示大数值时不撑开布局。
+
+模式切换改为 History API 页内切换，中间内容与语言控件各以 180ms 淡出/淡入，tab 和打字机键盘 DOM 保留。语言切换淡出全部文本及可能重排的工具栏、面板，再替换文案并淡入；固定功能键宽度，保留输入和同一计时时钟。支持浏览器前进/后退，连续切换串行执行，旧模式请求响应通过会话代次隔离，减少动态效果偏好下使用零时长过渡。字符气球坐标改为舞台相对坐标，切语言/布局变化时重测对齐。
+
+验证：本地 Cloudflare 完整浏览器 smoke 的 accepted/suspicious/rejected、失败回退、桌面及手机输入/布局/计时均通过；新增中英 320/390/768/1024/1440px 检查，包括缓存覆盖浏览器默认、语言切换保留输入及计时、稳定键盘 DOM、后退恢复、迟到响应隔离、减少动态效果、速度数值不溢出、字符对齐和无页面异常。对应截图在 `.local/screenshots/localized-*.png`。新增语言优先级、字典键一致、存储不可用测试。

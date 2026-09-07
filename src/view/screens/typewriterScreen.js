@@ -1,51 +1,21 @@
 import { renderKeyboard } from '../components/keyboard.js';
+import { renderChallengePanel } from '../components/challengePanel.js';
 
 export function renderTypewriterScreen() {
   return `
-    <div class="w-full h-screen flex flex-col justify-between">
-      <nav class="mode-tabs" aria-label="游戏模式">
-        <a class="mode-tab" data-mode="free" href="?mode=free">自由模式</a>
-        <a class="mode-tab" data-mode="daily-challenge" href="?mode=daily">每日挑战</a>
-      </nav>
-      <div id="stage" class="relative flex-1 w-full overflow-hidden">
-        <div id="challenge-stats-panel" class="relative z-30 w-[min(92vw,860px)] mx-auto mt-4 px-2 sm:px-4" hidden>
-          <section class="challenge-stats-shell mx-auto">
-            <div class="challenge-stats-topline">
-              <span id="challenge-stats-mode" class="challenge-stats-pill">Daily Challenge</span>
-              <span id="challenge-stats-progress" class="challenge-stats-progress">0/0</span>
-              <span id="challenge-stats-status" class="challenge-stats-status">loading</span>
-              <span id="challenge-stats-eligibility" class="challenge-stats-eligibility">Checking rank status</span>
-            </div>
-            <div class="challenge-stats-grid">
-              <article class="challenge-stats-card">
-                <span class="challenge-stats-label">本句用时</span>
-                <strong id="challenge-elapsed" class="challenge-stats-value" aria-label="本句用时">0.0 s</strong>
-              </article>
-              <article class="challenge-stats-card">
-                <span class="challenge-stats-label">Recent</span>
-                <strong id="challenge-stats-recent" class="challenge-stats-value">--</strong>
-              </article>
-              <article class="challenge-stats-card">
-                <span class="challenge-stats-label">Daily Best</span>
-                <strong id="challenge-stats-daily-best" class="challenge-stats-value">--</strong>
-              </article>
-              <article class="challenge-stats-card">
-                <span class="challenge-stats-label">Daily Rank</span>
-                <strong id="challenge-stats-daily-rank" class="challenge-stats-value">--</strong>
-              </article>
-              <article class="challenge-stats-card">
-                <span class="challenge-stats-label">All-time Best</span>
-                <strong id="challenge-stats-all-time-best" class="challenge-stats-value">--</strong>
-              </article>
-              <article class="challenge-stats-card">
-                <span class="challenge-stats-label">All-time Rank</span>
-                <strong id="challenge-stats-all-time-rank" class="challenge-stats-value">--</strong>
-              </article>
-            </div>
-            <div id="challenge-stats-flags" class="challenge-stats-flags" hidden></div>
-            <p id="challenge-stats-note" class="challenge-stats-note">Daily stats sync here once the run starts.</p>
-          </section>
+    <div class="app-shell w-full h-screen flex flex-col justify-between">
+      <header class="app-toolbar">
+        <nav class="mode-tabs" aria-label="">
+          <a class="mode-tab" data-mode="free" href="?mode=free" data-i18n="free"></a>
+          <a class="mode-tab" data-mode="daily-challenge" href="?mode=daily" data-i18n="daily"></a>
+        </nav>
+        <div class="locale-switch" role="group" aria-label="">
+          <button type="button" data-locale="zh-CN" lang="zh-CN">中</button>
+          <button type="button" data-locale="en" lang="en">EN</button>
         </div>
+      </header>
+      <div id="stage" class="relative flex-1 w-full overflow-hidden">
+        ${renderChallengePanel()}
         <div class="poem-target-area relative w-full flex justify-center px-4">
           <div id="target-poem" class="target-text flex flex-wrap justify-center"></div>
         </div>
@@ -54,10 +24,7 @@ export function renderTypewriterScreen() {
       </div>
       <div id="typewriter" class="typewriter-body w-full pb-8 pt-4 px-2 sm:px-4 z-30">
         <div id="paper-slot-area" class="h-2 mx-auto rounded-full paper-slot mb-6 relative"></div>
-        <div id="keyboard" class="flex flex-col gap-2 sm:gap-3 max-w-2xl mx-auto">
-          ${renderKeyboard()}
-        </div>
+        <div id="keyboard" class="flex flex-col gap-2 sm:gap-3 max-w-2xl mx-auto">${renderKeyboard()}</div>
       </div>
-    </div>
-  `;
+    </div>`;
 }

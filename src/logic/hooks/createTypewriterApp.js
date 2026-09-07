@@ -38,6 +38,7 @@ export function createTypewriterApp(rootElement, options = {}) {
   };
 
   const processInput = (key) => {
+    if (rootElement.dataset.transition) return;
     const inputResult = engine.handleInput(key);
     const trackerSnapshot = tracker.recordInput(inputResult);
 
@@ -79,16 +80,19 @@ export function createTypewriterApp(rootElement, options = {}) {
 
   const frameLoop = () => {
     engine.update(Date.now() / 1000);
-    const elapsedText = `${(Math.floor(tracker.getElapsedMs() / 100) / 10).toFixed(1)} s`;
+    const elapsedText = `${(Math.floor(tracker.getElapsedMs() / 100) / 10).toFixed(1)} ${options.i18n.t('seconds')}`;
     if (elapsedElement.textContent !== elapsedText) elapsedElement.textContent = elapsedText;
     animationFrameId = window.requestAnimationFrame(frameLoop);
   };
 
   window.addEventListener('keydown', onKeyDown);
+  const onResize = () => engine.refreshLayout();
+  window.addEventListener('resize', onResize);
   engine.loadNextPoem();
   frameLoop();
 
   return {
+    refreshLayout() { engine.refreshLayout(); },
     getLastCompletedRun() {
       return lastCompletedRun;
     },
@@ -102,6 +106,7 @@ export function createTypewriterApp(rootElement, options = {}) {
     },
     dispose() {
       window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('resize', onResize);
       pointerHandlers.forEach(({ keyElement, triggerKey }) => {
         keyElement.removeEventListener('touchstart', triggerKey);
         keyElement.removeEventListener('mousedown', triggerKey);

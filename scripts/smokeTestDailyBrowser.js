@@ -5,6 +5,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { mkdirSync } from 'node:fs';
 import { chromium } from 'playwright';
+import { checkLocalizedInterface } from './interfaceBrowserChecks.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '..');
@@ -27,30 +28,27 @@ const STEP_TIMEOUT_MS = 30000;
 const SCENARIOS = [
   {
     delays: [150, 210, 170, 230, 160],
-    expectedEligibility: 'Ranked run',
     expectedFlags: [],
     expectedValidationStatus: 'accepted',
     name: 'accepted',
-    noteIncludes: 'leaderboard-eligible',
+    noteIncludes: 'Last sentence',
     shouldAdvance: true,
   },
   {
     delays: [55, 85, 65, 95, 75],
-    expectedEligibility: 'Not ranked',
-    expectedFlags: ['High CPS'],
+    expectedFlags: ['high_cps'],
     expectedValidationStatus: 'suspicious',
     name: 'suspicious',
-    noteIncludes: 'Flagged as suspicious',
+    noteIncludes: 'excluded from rankings',
     shouldAdvance: true,
-    unexpectedFlags: ['Hard CPS limit'],
+    unexpectedFlags: ['hard_cps_limit'],
   },
   {
     delays: [20],
-    expectedEligibility: 'Not ranked',
-    expectedFlags: ['High CPS', 'Hard CPS limit'],
+    expectedFlags: ['high_cps', 'hard_cps_limit'],
     expectedValidationStatus: 'rejected',
     name: 'rejected',
-    noteIncludes: 'Run rejected by server validation',
+    noteIncludes: 'Result not counted',
     shouldAdvance: false,
   },
 ];
@@ -196,13 +194,9 @@ async function readPanelState(page) {
   return page.evaluate(() => {
     const text = (selector) => document.querySelector(selector)?.textContent?.trim() ?? null;
     const panel = document.querySelector('#challenge-stats-panel');
-    const flags = Array.from(document.querySelectorAll('#challenge-stats-flags .challenge-stats-flag')).map((node) =>
-      node.textContent.trim(),
-    );
+    const flags = window.__POETIC_TYPEWRITER__?.snapshot?.stats?.suspiciousFlags ?? [];
 
     return {
-      allTimeBest: text('#challenge-stats-all-time-best'),
-      allTimeRank: text('#challenge-stats-all-time-rank'),
       completedItems: window.__POETIC_TYPEWRITER__?.snapshot?.completedItems ?? null,
       currentItemId: window.__POETIC_TYPEWRITER__?.snapshot?.currentItem?.itemId ?? null,
       currentItemText: window.__POETIC_TYPEWRITER__?.snapshot?.currentItem?.text ?? null,
@@ -210,13 +204,10 @@ async function readPanelState(page) {
       dataValidationStatus: panel?.dataset.validationStatus ?? null,
       dailyBest: text('#challenge-stats-daily-best'),
       dailyRank: text('#challenge-stats-daily-rank'),
-      eligibility: text('#challenge-stats-eligibility'),
       flags,
       note: text('#challenge-stats-note'),
       panelHidden: panel?.hidden ?? null,
       progress: text('#challenge-stats-progress'),
-      recent: text('#challenge-stats-recent'),
-      statusLabel: text('#challenge-stats-status'),
       summary: window.__POETIC_TYPEWRITER__?.summary ?? null,
       title: document.title,
     };
@@ -225,18 +216,14 @@ async function readPanelState(page) {
 
 function assertDailyReadyState(initialState) {
   assert(initialState.panelHidden === false, 'daily ready: stats panel should be visible');
-  assert(initialState.title.includes('awaiting-first-input'), 'daily ready: title missing awaiting-first-input');
-  assert(initialState.statusLabel === 'awaiting first input', 'daily ready: wrong status label');
+  assert(initialState.title.includes('Daily challenge'), 'daily ready: localized title');
+  assert(initialState.summary.status === 'awaiting-first-input', 'daily ready: wrong state');
   assert(initialState.dataLeaderboardEligible === 'pending', 'daily ready: leaderboard state should be pending');
   assert(initialState.dataValidationStatus === 'idle', 'daily ready: validation status should be idle');
-  assert(initialState.eligibility === 'Rank status pending', 'daily ready: wrong eligibility label');
-  assert(initialState.note === 'The timer starts on the first accepted input.', 'daily ready: wrong note');
-  assert(initialState.recent === '--', 'daily ready: recent should be empty');
+  assert(initialState.note === '', 'daily ready: no redundant instruction');
   assert(initialState.dailyBest === '--', 'daily ready: daily best should be empty');
   assert(initialState.dailyRank === '--', 'daily ready: daily rank should be empty');
-  assert(initialState.allTimeBest === '--', 'daily ready: all-time best should be empty');
-  assert(initialState.allTimeRank === '--', 'daily ready: all-time rank should be empty');
-  assert(initialState.flags.length === 0, 'daily ready: should not show suspicious flags');
+  assert(initialState.flags.length === 0, 'daily ready: should not have suspicious flags');
 }
 
 async function waitForDailyReady(page) {
@@ -325,7 +312,7 @@ async function waitForFallbackFree(page) {
         bridge?.mode === 'free' &&
         bridge.summary?.mode === 'free' &&
         bridge.summary?.status === 'fallback-free' &&
-        document.title === 'Poetic Typewriter | Free' &&
+        document.title === 'Poetic Typewriter · Free writing' &&
         panel?.hidden === true
       );
     },
@@ -345,8 +332,6 @@ async function waitForFallbackFree(page) {
 function assertScenarioResult(initialState, scenario, result) {
   assert(result.summary.validationStatus === scenario.expectedValidationStatus, `${scenario.name}: wrong validation status`);
   assert(result.dataValidationStatus === scenario.expectedValidationStatus, `${scenario.name}: wrong panel validation status`);
-  assert(result.eligibility === scenario.expectedEligibility, `${scenario.name}: wrong eligibility label`);
-  assert(result.title.includes(scenario.expectedValidationStatus), `${scenario.name}: title missing validation status`);
   assert(result.note?.includes(scenario.noteIncludes), `${scenario.name}: note missing expected text`);
 
   const expectedLeaderboardEligible = scenario.expectedValidationStatus === 'accepted';
@@ -378,7 +363,7 @@ function assertScenarioResult(initialState, scenario, result) {
 }
 
 async function runScenario(browser, scenario) {
-  const context = await browser.newContext();
+  const context = await browser.newContext({ locale: 'en-US' });
   const page = await context.newPage();
 
   try {
@@ -397,7 +382,7 @@ async function runScenario(browser, scenario) {
     return {
       dataLeaderboardEligible: result.dataLeaderboardEligible,
       dataValidationStatus: result.dataValidationStatus,
-      eligibility: result.eligibility,
+      leaderboardEligible: result.summary.leaderboardEligible,
       flags: result.flags,
       name: scenario.name,
       note: result.note,
@@ -411,7 +396,7 @@ async function runScenario(browser, scenario) {
 }
 
 async function runFallbackFreeScenario(browser) {
-  const context = await browser.newContext();
+  const context = await browser.newContext({ locale: 'en-US' });
   const page = await context.newPage();
 
   try {
@@ -422,7 +407,7 @@ async function runFallbackFreeScenario(browser) {
     assert(result.summary?.status === 'fallback-free', 'fallback free: wrong runtime status');
     assert(result.summary?.progress === null, 'fallback free: progress should be cleared');
     assert(result.panelHidden === true, 'fallback free: stats panel should be hidden');
-    assert(result.title === 'Poetic Typewriter | Free', 'fallback free: wrong title');
+    assert(result.title === 'Poetic Typewriter · Free writing', 'fallback free: wrong title');
 
     return {
       bridgeMode: result.bridgeMode,
@@ -441,7 +426,7 @@ async function runViewportChecks(browser) {
   const directory = path.join(ROOT_DIR, '.local', 'screenshots');
   mkdirSync(directory, { recursive: true });
   for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
-    const context = await browser.newContext({ viewport });
+    const context = await browser.newContext({ viewport, locale: 'en-US' });
     const page = await context.newPage();
     try {
       await waitForDailyReady(page);
@@ -468,6 +453,7 @@ async function runViewportChecks(browser) {
       await page.locator('[data-mode="free"]').click();
       await page.waitForFunction(() => window.__POETIC_TYPEWRITER__?.summary?.mode === 'free');
       assert(await page.locator('[data-mode="free"]').getAttribute('aria-current') === 'page', 'free tab is selected');
+      await page.waitForFunction(() => !document.querySelector('#app').dataset.transition);
       await page.locator('#stage').click({ position: { x: 4, y: 4 } });
       await page.keyboard.type('a');
       await page.waitForFunction(() => document.querySelectorAll('#balloons-container .balloon-char').length > 0);
@@ -533,8 +519,9 @@ async function main() {
 
     const fallbackResult = await runFallbackFreeScenario(browser);
     const viewports = CLOUDFLARE ? await runViewportChecks(browser) : [];
+    const localization = CLOUDFLARE ? await checkLocalizedInterface(browser, WEB_BASE_URL, path.join(ROOT_DIR, '.local', 'screenshots')) : null;
 
-    console.log(JSON.stringify({ fallback: fallbackResult, scenarios: results, viewports }, null, 2));
+    console.log(JSON.stringify({ fallback: fallbackResult, scenarios: results, viewports, localization }, null, 2));
   } finally {
     if (browser) {
       await browser.close();
@@ -547,6 +534,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(error.message);
+  console.error(error.stack);
   process.exit(1);
 });

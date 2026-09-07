@@ -151,6 +151,7 @@ export class TypewriterEngine {
     }
 
     const originCoords = this.getOriginCoordsForAlphabet(char);
+    const stageRect = this.elements.balloonsContainer.getBoundingClientRect();
     const balloonElement = document.createElement('div');
     balloonElement.className = `balloon-char ${!isCorrect ? 'error' : ''}`;
     balloonElement.innerText = char;
@@ -177,8 +178,8 @@ export class TypewriterEngine {
       originY: originCoords.y,
       startX: originCoords.x,
       startY: originCoords.y,
-      targetX: metrics.x,
-      targetY: metrics.y,
+      targetX: metrics.x - stageRect.left,
+      targetY: metrics.y - stageRect.top,
       currentX: originCoords.x,
       currentY: originCoords.y,
       swayOffset: Math.random() * Math.PI * 2,
@@ -194,7 +195,8 @@ export class TypewriterEngine {
 
   getOriginCoordsForAlphabet(char) {
     const slotRect = this.elements.paperSlotArea.getBoundingClientRect();
-    const startY = slotRect.top;
+    const stageRect = this.elements.balloonsContainer.getBoundingClientRect();
+    const startY = slotRect.top - stageRect.top;
     const charCode = char.toLowerCase().charCodeAt(0);
     let alphabetIndex = charCode - 97;
 
@@ -205,9 +207,22 @@ export class TypewriterEngine {
     const padding = slotRect.width * 0.1;
     const usableWidth = slotRect.width - padding * 2;
     const step = usableWidth / 25;
-    const startX = slotRect.left + padding + step * alphabetIndex;
+    const startX = slotRect.left - stageRect.left + padding + step * alphabetIndex;
 
     return { x: startX, y: startY };
+  }
+
+  refreshLayout() {
+    const rect = this.elements.balloonsContainer.getBoundingClientRect();
+    for (const balloon of this.activeBalloons) {
+      const metrics = this.pretextEngine.getGlyphMetrics(balloon.index);
+      if (!metrics) continue;
+      const origin = this.getOriginCoordsForAlphabet(balloon.char);
+      balloon.originX = origin.x;
+      balloon.originY = origin.y;
+      balloon.targetX = metrics.x - rect.left;
+      balloon.targetY = metrics.y - rect.top;
+    }
   }
 
   update(currentTimeSeconds) {
