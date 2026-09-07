@@ -31,9 +31,9 @@
 
 ## 远端部署结果
 
-- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `a93d3e0f-1a35-4894-bd9c-c1078c39d888`。
+- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `c1abfdf2-44b6-451e-b49c-e34af0724835`。
 - Staging D1：`158c8d4c-78bf-4e80-97f6-7ac0a369b492`。
-- Production Worker：`poetic-typewriter`，版本 `2548f2ee-c271-430f-b088-2e63b2e8e20f`，关闭 workers.dev。
+- Production Worker：`poetic-typewriter`，版本 `b9682df1-470a-45e9-9edc-bd0840f586e2`，关闭 workers.dev。
 - Production D1：`7cf4511c-9da0-441e-9f38-f000ed0f64bd`。
 - 已通过 API 确认生产仅绑定 `game.onovich.com/PoeticTypewriter` 与 `game.onovich.com/PoeticTypewriter/*` 两条路由，门户首页保留。
 - 真实 staging HTTPS 浏览器 smoke 全通过：pending、accepted、suspicious、rejected、失败回退、Cookie 作用域、308 跳转、路径隔离、桌面及手机竖屏布局、自由模式键盘输入。日志位于 `.local/staging-browser-smoke.log`。测试成绩仅写 staging。
@@ -209,3 +209,13 @@ HTML 预加载两款首屏 WOFF2 字体，Vite 自动转换为与 CSS 相同的�
 用户批准上线预览分支，源码 `75be88d` 已发布为 production `2548f2ee-c271-430f-b088-2e63b2e8e20f`。包含居中书写布局、按单词换行、加载留白与淡入、个人成绩本地存档和明确的个人最佳/排名标签。无数据库迁移。原 production `1f0f4f28-40d6-4ea4-b768-267a990d112a` 保留为回撤版本，源码基线 `be0b24b`，详见 `docs/IMMERSIVE_PREVIEW.md`。
 
 线上验证通过：2304×1278、1440、1024、390、320 视口的最长诗句/键盘边界；中英加载与减少动态效果；本地成绩刷新、换日及身份隔离；真实 API 玩家标识和十句上限；SEO 抓取、站点地图、404 和门户 200。所有成绩提交均使用浏览器模拟，没有生产成绩写入。日志 `.local/immersive-production-deploy.log`、`.local/immersive-production-verification.log`；截图 `.local/screenshots/production-approved/`。
+
+## 连线贴合与无输入超时（2026-09-08）
+
+连线末端采用 Canvas 字体度量计算字形底边，扣除行框空白，并随字符旋转变换端点。度量仅在创建字符和布局刷新时计算，不在每帧读取 DOM。
+
+连续 3 分钟无有效输入时，仅重置尚未完成的本句：立即清空本句计时、失效旧请求代次和 run token；字符、连线、目标诗句淡出 180ms 后恢复同一句空输入状态。保留挑战进度和个人历史成绩，自由模式不消耗新句子。正在提交或已完成的句子不按此规则重置。后台暂停 RAF，恢复页面和处理输入之前均检查墙钟超时；无字符动画、无计时和无引擎任务时，RAF 循环停止，再次输入才唤醒。支持减少动态效果。没有新增取消接口或数据库迁移。
+
+本地完整回归通过；新增浏览器检查覆盖自由模式真实淡出、每日挑战虚拟时钟超时、迟到 start 响应隔离、零成绩提交、恢复后全新 token、休眠时钟跳变和 RAF 停止。虚拟时钟不驱动 WAAPI 时间线，测试显式完成这部分动画，另用自由模式真实动画验证补足。两环境专项回归和固定坐标回归均通过。日志：`.local/idle-smoke-verified.log`、`.local/idle-staging-verification.log`、`.local/idle-production-verification.log`。
+
+Staging `c1abfdf2-44b6-451e-b49c-e34af0724835`；production `b9682df1-470a-45e9-9edc-bd0840f586e2`。上一个 production `2548f2ee-c271-430f-b088-2e63b2e8e20f` 保留用于回撤。线上验证的提交接口均模拟，不产生真实成绩。

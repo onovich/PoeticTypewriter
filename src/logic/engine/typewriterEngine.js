@@ -145,6 +145,40 @@ export class TypewriterEngine {
     return true;
   }
 
+  resetCurrentPoem() {
+    this.clearTimers();
+    this.phaseTransitionScheduled = false;
+    this.typedIndex = 0;
+    this.typedText = '';
+    this.isInputLocked = false;
+    this.gameState = GAME_PHASES.TYPING;
+    this.activeBalloons = [];
+    this.elements.balloonsContainer.innerHTML = '';
+    this.elements.svgCanvas.innerHTML = '';
+    this.pretextEngine.init(this.elements.targetPoemContainer, this.currentPoem);
+    this.elements.targetPoemContainer.classList.remove('fade-out');
+  }
+
+  measureAttachment(balloon) {
+    this.textContext ??= document.createElement('canvas').getContext('2d');
+    const style = getComputedStyle(balloon.element);
+    this.textContext.font = `${style.fontSize} ${style.fontFamily}`;
+    const metrics = this.textContext.measureText(balloon.char);
+    const size = parseFloat(style.fontSize);
+    const height = balloon.element.offsetHeight;
+    const baseline = (height - (metrics.fontBoundingBoxAscent ?? size * .8) - (metrics.fontBoundingBoxDescent ?? size * .2)) / 2 + (metrics.fontBoundingBoxAscent ?? size * .8);
+    balloon.attachmentHeight = height;
+    balloon.inkGap = Math.max(0, height - baseline - metrics.actualBoundingBoxDescent - 1);
+  }
+
+  updateBalloonPath(balloon, startX, startY, bend) {
+    const radians = (balloon.currentRot ?? 0) * Math.PI / 180;
+    const radius = balloon.attachmentHeight / 2 - balloon.inkGap;
+    this.updatePath(balloon.pathElement, startX, startY,
+      balloon.currentX - Math.sin(radians) * radius,
+      balloon.currentY - balloon.attachmentHeight / 2 + Math.cos(radians) * radius, bend);
+  }
+
   spawnBalloon(char, index, isCorrect) {
     const metrics = this.pretextEngine.getGlyphMetrics(index);
     if (!metrics) {
@@ -192,6 +226,7 @@ export class TypewriterEngine {
       fallProgress: 0,
       retractProgress: 0,
     });
+    this.measureAttachment(this.activeBalloons.at(-1));
   }
 
   getOriginCoordsForAlphabet(char) {
@@ -216,6 +251,7 @@ export class TypewriterEngine {
   refreshLayout() {
     const rect = this.elements.balloonsContainer.getBoundingClientRect();
     for (const balloon of this.activeBalloons) {
+      this.measureAttachment(balloon);
       const metrics = this.pretextEngine.getGlyphMetrics(balloon.index);
       if (!metrics) continue;
       const origin = this.getOriginCoordsForAlphabet(balloon.char);
@@ -275,7 +311,7 @@ export class TypewriterEngine {
     balloon.currentRot = 0;
 
     balloon.element.style.transform = `translate(calc(${balloon.currentX}px - 50%), calc(${balloon.currentY}px - 100%))`;
-    this.updatePath(balloon.pathElement, balloon.originX, balloon.originY, balloon.currentX, balloon.currentY, windBend * balloon.progress);
+    this.updateBalloonPath(balloon, balloon.originX, balloon.originY, windBend * balloon.progress);
   }
 
   updateSwayingBalloon(balloon, currentTimeSeconds, windBend) {
@@ -284,7 +320,7 @@ export class TypewriterEngine {
     balloon.currentX = balloon.targetX + swayX;
     balloon.currentY = balloon.targetY;
     balloon.element.style.transform = `translate(calc(${balloon.currentX}px - 50%), calc(${balloon.currentY}px - 100%)) rotate(${balloon.currentRot}deg)`;
-    this.updatePath(balloon.pathElement, balloon.originX, balloon.originY, balloon.currentX, balloon.currentY, windBend);
+    this.updateBalloonPath(balloon, balloon.originX, balloon.originY, windBend);
   }
 
   updateFallingBalloon(balloon) {
@@ -297,7 +333,7 @@ export class TypewriterEngine {
     balloon.currentX = balloon.startX + (balloon.originX - balloon.startX) * fallValue;
     balloon.currentY = balloon.startY + (balloon.originY - balloon.startY) * fallValue;
     balloon.element.style.transform = `translate(calc(${balloon.currentX}px - 50%), calc(${balloon.currentY}px - 100%)) rotate(${balloon.currentRot}deg)`;
-    this.updatePath(balloon.pathElement, balloon.originX, balloon.originY, balloon.currentX, balloon.currentY, 0);
+    this.updateBalloonPath(balloon, balloon.originX, balloon.originY, 0);
 
     return false;
   }
@@ -312,7 +348,7 @@ export class TypewriterEngine {
 
     const retractY = balloon.originY + (balloon.currentY - balloon.originY) * balloon.retractProgress;
     const retractX = balloon.originX + (balloon.currentX - balloon.originX) * balloon.retractProgress;
-    this.updatePath(balloon.pathElement, retractX, retractY, balloon.currentX, balloon.currentY, windBend * (1 - balloon.retractProgress));
+    this.updateBalloonPath(balloon, retractX, retractY, windBend * (1 - balloon.retractProgress));
 
     balloon.currentRot = Math.sin(currentTimeSeconds * 2 + balloon.swayOffset) * 6;
     balloon.currentX = balloon.targetX + Math.sin(currentTimeSeconds * 1.5 + balloon.swayOffset) * 3;

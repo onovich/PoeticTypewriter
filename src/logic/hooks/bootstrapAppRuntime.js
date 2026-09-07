@@ -51,6 +51,11 @@ export async function bootstrapAppRuntime(rootElement) {
   const app = mountApp(rootElement, {
     i18n,
     poems: [],
+    onIdleReset: () => {
+      generation++;
+      clearRun();
+      if (isDaily()) store.patch({ runToken: null, error: null, lastCompletedRun: null, status: 'awaiting-first-input' });
+    },
     onInputProcessed: ({ inputResult }) => {
       if (!isDaily() || !inputResult.accepted || inputResult.inputKind !== 'char' || activeRun || activeRunPromise) return;
       const requestGeneration = generation;

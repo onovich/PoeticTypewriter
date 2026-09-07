@@ -12,6 +12,7 @@ import { checkSeo } from './seoBrowserChecks.js';
 import { checkComposition } from './compositionBrowserChecks.js';
 import { checkQuietLoading } from './loadingBrowserChecks.js';
 import { checkLocalScores } from './localScoresBrowserChecks.js';
+import { checkIdleReset } from './idleBrowserChecks.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '..');
@@ -532,6 +533,7 @@ async function main() {
     if (CLOUDFLARE) console.log('Composition:', await checkComposition(browser, WEB_BASE_URL, path.join(ROOT_DIR, '.local', 'screenshots')));
     if (CLOUDFLARE) console.log('Loading:', await checkQuietLoading(browser, WEB_BASE_URL));
     if (CLOUDFLARE) console.log('Local scores:', await checkLocalScores(browser, WEB_BASE_URL));
+    if (CLOUDFLARE) console.log('Idle reset:', await checkIdleReset(browser, WEB_BASE_URL));
 
     console.log(JSON.stringify({ fallback: fallbackResult, scenarios: results, viewports, localization, poemRotation, stableStats }, null, 2));
   } finally {

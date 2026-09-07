@@ -18,6 +18,49 @@ export function createTypewriterApp(rootElement, options = {}) {
   const elapsedElement = rootElement.querySelector('#challenge-elapsed');
   let animationFrameId = 0;
   let lastCompletedRun = null;
+  const idleTimeoutMs = 3 * 60 * 1000;
+  let idleTimer = 0, lastActivity = null, resetting = false, revision = 0;
+  let idleAnimations = [];
+  const clearIdle = () => { clearTimeout(idleTimer); idleTimer = 0; lastActivity = null; };
+  const renderElapsed = () => {
+    const text = `${(Math.floor(tracker.getElapsedMs() / 100) / 10).toFixed(1)} ${options.i18n.t('seconds')}`;
+    if (elapsedElement.textContent !== text) elapsedElement.textContent = text;
+  };
+  const resetIdleRun = async () => {
+    if (resetting || tracker.startedAtMs === null) return;
+    const token = ++revision;
+    resetting = true;
+    clearIdle();
+    tracker.reset();
+    lastCompletedRun = null;
+    renderElapsed();
+    options.onIdleReset?.();
+    const targets = [elements.targetPoemContainer, elements.balloonsContainer, elements.svgCanvas];
+    const duration = document.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 180;
+    idleAnimations = targets.map(element => element.animate([{ opacity: 1 }, { opacity: 0 }], { duration, fill: 'forwards' }));
+    await Promise.allSettled(idleAnimations.map(a => a.finished));
+    if (token !== revision) return;
+    engine.resetCurrentPoem();
+    idleAnimations.forEach(a => a.cancel());
+    idleAnimations = [elements.targetPoemContainer.animate([{ opacity: 0 }, { opacity: 1 }], { duration })];
+    await Promise.allSettled(idleAnimations.map(a => a.finished));
+    if (token !== revision) return;
+    idleAnimations = [];
+    resetting = false;
+    wake();
+  };
+  const expireIfNeeded = () => {
+    if (lastActivity !== null && Date.now() - lastActivity >= idleTimeoutMs) {
+      void resetIdleRun();
+      return true;
+    }
+    return resetting;
+  };
+  const armIdle = () => {
+    clearTimeout(idleTimer);
+    lastActivity = Date.now();
+    idleTimer = setTimeout(() => { expireIfNeeded(); }, idleTimeoutMs);
+  };
 
   const highlightVisualKey = (key) => {
     let searchKey = key.toLowerCase();
@@ -38,9 +81,12 @@ export function createTypewriterApp(rootElement, options = {}) {
   };
 
   const processInput = (key) => {
+    if (expireIfNeeded()) return;
     if (rootElement.dataset.transition) return;
     const inputResult = engine.handleInput(key);
     const trackerSnapshot = tracker.recordInput(inputResult);
+    if (inputResult.accepted && tracker.startedAtMs !== null) armIdle();
+    wake();
 
     options.onInputProcessed?.({
       inputResult,
@@ -52,6 +98,7 @@ export function createTypewriterApp(rootElement, options = {}) {
     }
 
     lastCompletedRun = tracker.finishRun();
+    clearIdle();
     options.onRunCompleted?.(lastCompletedRun);
 
     return inputResult;
@@ -79,11 +126,20 @@ export function createTypewriterApp(rootElement, options = {}) {
   });
 
   const frameLoop = () => {
+    animationFrameId = 0;
+    if (document.hidden || expireIfNeeded()) return;
     engine.update(Date.now() / 1000);
-    const elapsedText = `${(Math.floor(tracker.getElapsedMs() / 100) / 10).toFixed(1)} ${options.i18n.t('seconds')}`;
-    if (elapsedElement.textContent !== elapsedText) elapsedElement.textContent = elapsedText;
-    animationFrameId = window.requestAnimationFrame(frameLoop);
+    renderElapsed();
+    if (engine.activeBalloons.length || engine.timers.size || tracker.startedAtMs !== null) wake();
   };
+  const wake = () => {
+    if (!animationFrameId && !document.hidden && !resetting) animationFrameId = window.requestAnimationFrame(frameLoop);
+  };
+  const onVisibility = () => {
+    if (document.hidden) { cancelAnimationFrame(animationFrameId); animationFrameId = 0; }
+    else if (!expireIfNeeded()) wake();
+  };
+  document.addEventListener('visibilitychange', onVisibility);
 
   window.addEventListener('keydown', onKeyDown);
   const onResize = () => engine.refreshLayout();
@@ -92,19 +148,30 @@ export function createTypewriterApp(rootElement, options = {}) {
   frameLoop();
 
   return {
-    refreshLayout() { engine.refreshLayout(); },
+    refreshLayout() { engine.refreshLayout(); renderElapsed(); wake(); },
     getLastCompletedRun() {
       return lastCompletedRun;
     },
     setPoems(poems, options = {}) {
+      revision++;
+      clearIdle();
+      resetting = false;
+      idleAnimations.forEach(a => a.cancel());
+      idleAnimations = [];
       tracker.reset();
       engine.setPoems(poems, { resetIndex: options.resetIndex, poemSource: options.poemSource });
 
       if (options.loadImmediately) {
         engine.loadNextPoem();
       }
+      renderElapsed();
+      wake();
     },
     dispose() {
+      revision++;
+      clearIdle();
+      idleAnimations.forEach(a => a.cancel());
+      document.removeEventListener('visibilitychange', onVisibility);
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('resize', onResize);
       pointerHandlers.forEach(({ keyElement, triggerKey }) => {
