@@ -31,9 +31,9 @@
 
 ## 远端部署结果
 
-- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `40f8daff-de20-4f3c-804e-a233ba3b2efe`。
+- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `b03c9cee-6ed5-41e8-8eb7-32228da24b0d`。
 - Staging D1：`158c8d4c-78bf-4e80-97f6-7ac0a369b492`。
-- Production Worker：`poetic-typewriter`，版本 `61435785-4f57-4504-ae79-523fb5e1c982`，关闭 workers.dev。
+- Production Worker：`poetic-typewriter`，版本 `1f0f4f28-40d6-4ea4-b768-267a990d112a`，关闭 workers.dev。
 - Production D1：`7cf4511c-9da0-441e-9f38-f000ed0f64bd`。
 - 已通过 API 确认生产仅绑定 `game.onovich.com/PoeticTypewriter` 与 `game.onovich.com/PoeticTypewriter/*` 两条路由，门户首页保留。
 - 真实 staging HTTPS 浏览器 smoke 全通过：pending、accepted、suspicious、rejected、失败回退、Cookie 作用域、308 跳转、路径隔离、桌面及手机竖屏布局、自由模式键盘输入。日志位于 `.local/staging-browser-smoke.log`。测试成绩仅写 staging。
@@ -193,3 +193,13 @@ HTML 预加载两款首屏 WOFF2 字体，Vite 自动转换为与 CSS 相同的�
 门户和根 robots.txt 只读验证：门户 200，robots 允许搜索抓取；现有 Sitemap 指向门户站点地图索引，未修改根路由。项目 sitemap 已部署并通过链接暴露，但未向 Search Console 提交或确认收录，需要站点所有者账号完成该外部步骤。
 
 证据：`.local/seo-smoke.log`、`.local/seo-staging-ui.log`、`.local/seo-staging-deploy.log`、`.local/seo-production-deploy.log`、`.local/seo-staging-verification.log`、`.local/seo-production-verification.log` 与 `.local/screenshots/seo-guide-*.png`。远程抓取检查使用 Chromium 网络栈，避免本机 Node TLS 间歇性握手失败，证书验证保持开启。
+
+## 沉浸式视觉层级（2026-09-08）
+
+使用统一的主文字、辅助文字、弱文字和焦点色变量；导航、统计标签及单位统一为低饱和暖灰，统计数字缩小，计时取消金色强调。诗句亮度提高并移除投影，输入字符取消发光，错误色变为柔和赭红，连线透明度降低。
+
+键盘保留复古造型与按压反馈，机身与键帽采用更柔和的灰色渐变，降低边缘高光、双层描边和外阴影的强度。键帽增加明确的键盘焦点轮廓。固定统计高度、预留消息槽、切换动画和各视口尺寸保持。辅助文字与背景对比约 5.22:1，键帽暗端与文字对比约 5.36:1。
+
+本地完整 Cloudflare 浏览器回归通过（含中英 320–1440px、模式和语言切换、成绩等待及返回固定坐标、自由模式出题、SEO 检查）。手机与桌面截图已人工检查；staging 线上固定坐标与中英文布局再次通过。日志 `.local/zen-ui-smoke.log`、`.local/zen-staging-verification.log`，截图沿用 `.local/screenshots/localized-*.png` 和 `staging-quiet-*.png`。
+
+本轮发布 staging `b03c9cee-6ed5-41e8-8eb7-32228da24b0d`、production `1f0f4f28-40d6-4ea4-b768-267a990d112a`。生产中英手机与桌面、延迟提交/成功返回/异常提示的固定坐标验证均通过，门户保持 200。无真实挑战成绩提交。生产验收日志：`.local/zen-production-verification.log`。

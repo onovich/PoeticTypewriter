@@ -3,7 +3,11 @@
 @tailwind utilities;
 
 :root {
-  color: #ffffff;
+  --ink-primary: #ccc5b7;
+  --ink-secondary: #a3a198;
+  --ink-muted: #8e8d85;
+  --ink-focus: #c6c2b5;
+  color: var(--ink-primary);
   background-color: #1a1a1a;
   font-family: 'Playfair Display', serif;
 }
@@ -28,36 +32,35 @@ body {
 }
 
 .typewriter-body {
-  background: linear-gradient(180deg, #3a3b3c 0%, #1e1e1e 100%);
+  background: linear-gradient(180deg, #2b2c29 0%, #1e1f1d 100%);
   box-shadow:
-    0 -10px 30px rgba(0, 0, 0, 0.8),
-    inset 0 2px 3px rgba(255, 255, 255, 0.1),
-    inset 0 -5px 15px rgba(0, 0, 0, 0.5);
+    0 -8px 32px rgba(0, 0, 0, 0.18),
+    inset 0 1px 2px rgba(255, 255, 255, 0.035);
   border-top-left-radius: 30px;
   border-top-right-radius: 30px;
-  border-top: 2px solid #555;
+  border-top: 2px solid #393b35;
   position: relative;
 }
 
 .paper-slot {
-  background: #111;
-  box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.9);
-  border-bottom: 1px solid #444;
+  background: #151613;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35);
+  border-bottom: 1px solid #34362f;
   width: 85%;
   max-width: 500px;
 }
 
 .skeuo-key {
   font-family: 'Special Elite', monospace;
-  background: radial-gradient(circle at 30% 30%, #e8e8e4 0%, #b8b8b0 100%);
-  border: 2px solid #8a8a8a;
+  background: radial-gradient(circle at 35% 25%, #b4b5ac 0%, #94968d 100%);
+  border: 2px solid #70736a;
   border-radius: 50%;
   box-shadow:
-    0 4px 0 #5a5a5a,
-    0 6px 10px rgba(0, 0, 0, 0.6),
-    inset 0 1px 3px rgba(255, 255, 255, 0.8);
-  color: #111;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    0 3px 0 #4b4e46,
+    0 5px 8px rgba(0, 0, 0, 0.25),
+    inset 0 1px 2px rgba(255, 255, 255, 0.18);
+  color: #20221d;
+  text-shadow: none;
   cursor: pointer;
   transition: all 0.05s ease;
   display: flex;
@@ -72,18 +75,18 @@ body {
   position: absolute;
   inset: 3px;
   border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(35, 39, 30, 0.16);
+  box-shadow: none;
 }
 
 .skeuo-key:active,
 .skeuo-key.active-state {
   box-shadow:
-    0 1px 0 #5a5a5a,
-    0 2px 3px rgba(0, 0, 0, 0.6),
-    inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    0 1px 0 #4b4e46,
+    0 2px 3px rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px rgba(0, 0, 0, 0.15);
   transform: translateY(3px);
-  background: radial-gradient(circle at 30% 30%, #dcdcc8 0%, #a8a8a0 100%);
+  background: radial-gradient(circle at 35% 25%, #a4a79a 0%, #8b8f81 100%);
 }
 
 .skeuo-key-wide {
@@ -98,8 +101,8 @@ body {
   font-family: 'Special Elite', monospace;
   position: absolute;
   font-size: 1.5rem;
-  color: #e0e0e0;
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+  color: #e0d9ca;
+  text-shadow: none;
   transform-origin: center center;
   white-space: pre;
   z-index: 20;
@@ -107,8 +110,8 @@ body {
 }
 
 .balloon-char.error {
-  color: #ff6b6b;
-  text-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+  color: #d99b91;
+  text-shadow: none;
 }
 
 .poem-target-area {
@@ -116,11 +119,11 @@ body {
 }
 
 .target-text {
-  color: rgba(255, 255, 255, 0.15);
+  color: var(--ink-primary);
   font-family: 'Special Elite', monospace;
   font-size: 1.5rem;
   letter-spacing: 0.1em;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  text-shadow: none;
   transition: opacity 1.5s ease-in-out;
 }
 
@@ -132,34 +135,33 @@ body {
 .app-shell { height: 100dvh; }
 .app-toolbar { position: relative; display: flex; align-items: center; justify-content: center; gap: 28px; padding: 24px 16px 0; flex: 0 0 auto; z-index: 40; }
 .mode-tabs { display: flex; align-items: center; gap: 24px; }
-.mode-tab, .locale-switch button { position: relative; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; border: 0; background: transparent; color: #a5a096; text-decoration: none; font: 12px/1.5 'Playfair Display', 'Songti SC', 'SimSun', serif; letter-spacing: .045em; transition: color 180ms ease; }
+.mode-tab, .locale-switch button { position: relative; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; border: 0; background: transparent; color: var(--ink-muted); text-decoration: none; font: 12px/1.5 'Playfair Display', 'Songti SC', 'SimSun', serif; letter-spacing: .045em; transition: color 180ms ease; }
 .mode-tab { padding: 0 4px; }
-.mode-tab:hover, .locale-switch button:hover { color: #e1d5be; }
-.mode-tab[aria-current='page'], .locale-switch button[aria-pressed='true'] { color: #d1c4ab; }
+.mode-tab:hover, .locale-switch button:hover { color: var(--ink-focus); }
+.mode-tab[aria-current='page'], .locale-switch button[aria-pressed='true'] { color: var(--ink-secondary); }
 .mode-tab::after { content: ''; position: absolute; width: 14px; height: 1px; background: currentColor; bottom: 5px; left: calc(50% - 7px); opacity: 0; transition: opacity 180ms ease; }
 .mode-tab[aria-current='page']::after { opacity: .7; }
 .locale-switch { display: flex; gap: 2px; padding-left: 18px; position: relative; }
 .locale-switch::before { content: ''; position: absolute; left: 0; top: 19px; width: 1px; height: 6px; background: #625e55; }
 .locale-switch button { min-width: 32px; font: 10px/1.5 system-ui, sans-serif; letter-spacing: .05em; }
 .locale-switch button[aria-pressed='true']::after { content: ''; position: absolute; width: 2px; height: 2px; border-radius: 50%; background: currentColor; bottom: 7px; }
-.mode-tab:focus-visible, .locale-switch button:focus-visible { outline: 1px solid #c7bda8; outline-offset: 4px; border-radius: 2px; }
+.mode-tab:focus-visible, .locale-switch button:focus-visible { outline: 1px solid var(--ink-focus); outline-offset: 4px; border-radius: 2px; }
 #challenge-stats-panel { width: min(90%, 600px); margin: 28px auto 0; position: relative; z-index: 30; }
-.challenge-stats-shell { color: #bab4a8; }
-.challenge-stats-topline { display: flex; align-items: center; justify-content: center; gap: 18px; height: 18px; margin-bottom: 20px; color: #a7a194; font: 11px/18px 'Playfair Display', 'Songti SC', 'SimSun', serif; letter-spacing: .07em; }
+.challenge-stats-shell { color: var(--ink-secondary); }
+.challenge-stats-topline { display: flex; align-items: center; justify-content: center; gap: 18px; height: 18px; margin-bottom: 20px; color: var(--ink-muted); font: 11px/18px 'Playfair Display', 'Songti SC', 'SimSun', serif; letter-spacing: .07em; }
 .challenge-stats-topline::before, .challenge-rule { content: ''; height: 1px; width: 32px; background: #37352f; }
 .challenge-stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; height: 76px; }
 .challenge-metric { min-width: 0; text-align: center; }
-.challenge-metric > span { display: block; height: 26px; color: #a8a295; font: 11px/16px 'Playfair Display', 'Songti SC', 'SimSun', serif; letter-spacing: .04em; }
-.challenge-metric strong { display: block; color: #ccc4b5; font-family: 'Playfair Display', 'Songti SC', 'SimSun', serif; font-size: 20px; font-weight: 400; line-height: 26px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.challenge-metric-time strong { color: #cbbd9e; }
-.challenge-metric strong small { display: block; height: 16px; font: 10px/16px system-ui, sans-serif; color: #9e988c; }
+.challenge-metric > span { display: block; height: 26px; color: var(--ink-muted); font: 11px/16px 'Playfair Display', 'Songti SC', 'SimSun', serif; letter-spacing: .04em; }
+.challenge-metric strong { display: block; color: var(--ink-secondary); font-family: 'Playfair Display', 'Songti SC', 'SimSun', serif; font-size: 18px; font-weight: 400; line-height: 26px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.challenge-metric-time strong { color: var(--ink-secondary); }
+.challenge-metric strong small { display: block; height: 16px; font: 10px/16px system-ui, sans-serif; color: var(--ink-muted); }
 .challenge-notice-slot { position: relative; z-index: 30; width: min(90%, 600px); height: 40px; margin: 0 auto; }
-.challenge-stats-note { position: absolute; inset: 6px 0 auto; margin: 0; text-align: center; color: #b9af9c; font: 11px/16px system-ui, sans-serif; }
+.challenge-stats-note { position: absolute; inset: 6px 0 auto; margin: 0; text-align: center; color: var(--ink-secondary); font: 11px/16px system-ui, sans-serif; }
 [hidden] { display: none !important; }
 #stage[data-active-mode='daily-challenge'] .poem-target-area { padding-top: 12px; }
 #stage[data-active-mode='free'] .poem-target-area { padding-top: 80px; }
 #stage[data-active-mode='free'] .challenge-notice-slot { position: absolute; top: 16px; left: 5%; width: 90%; }
-.target-text { color: #99948a; }
 .key-legend { display: inline-block; }
 .skeuo-key[data-key='Backspace'] { width: 80px; flex: 0 0 80px; padding-inline: 0; }
 @media (max-width: 640px) {
@@ -170,13 +172,13 @@ body {
   #challenge-stats-panel { margin-top: 24px; }
   .challenge-stats-grid { gap: 8px; }
   .challenge-metric > span { height: 32px; font-size: 10px; line-height: 14px; }
-  .challenge-metric strong { font-size: 17px; line-height: 24px; }
+  .challenge-metric strong { font-size: 16px; line-height: 24px; }
   .challenge-metric strong small { font-size: 9px; }
 }
 
-.guide-link { position: absolute; right: 12px; bottom: 0; min-height: 44px; display: flex; align-items: center; padding: 0 6px; font: 10px/1.5 system-ui,sans-serif; color: #aaa59c; text-decoration: none; z-index: 2; }
-.guide-link:hover { color: #ded3bf; }
-.guide-link:focus-visible { outline: 1px solid #ded3bf; outline-offset: 2px; }
+.guide-link { position: absolute; right: 12px; bottom: 0; min-height: 44px; display: flex; align-items: center; padding: 0 6px; font: 10px/1.5 system-ui,sans-serif; color: var(--ink-muted); text-decoration: none; z-index: 2; }
+.guide-link:hover { color: var(--ink-focus); }
+.guide-link:focus-visible { outline: 1px solid var(--ink-focus); outline-offset: 2px; }
 @media (max-width: 359px) {
   .app-toolbar { gap: 12px; padding-inline: 8px; }
   .mode-tabs { gap: 12px; }
@@ -191,3 +193,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .target-text, .skeuo-key, .mode-tab, .mode-tab::after, .locale-switch button { transition: none; }
 }
+
+/* The verse leads; connecting threads stay in the background. */
+#string-canvas path { stroke: rgba(181, 180, 166, .18); }
+.skeuo-key:focus-visible { outline: 2px solid var(--ink-focus); outline-offset: 5px; }
