@@ -9,6 +9,7 @@ import { checkLocalizedInterface } from './interfaceBrowserChecks.js';
 import { checkPoemRotation } from './poemBrowserChecks.js';
 import { checkStableStats } from './stableStatsBrowserChecks.js';
 import { checkSeo } from './seoBrowserChecks.js';
+import { checkComposition } from './compositionBrowserChecks.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '..');
@@ -526,6 +527,7 @@ async function main() {
     const poemRotation = CLOUDFLARE ? await checkPoemRotation(browser, WEB_BASE_URL) : null;
     const stableStats = CLOUDFLARE ? await checkStableStats(browser, WEB_BASE_URL) : null;
     if (CLOUDFLARE) console.log('SEO:', await checkSeo(browser, WEB_BASE_URL));
+    if (CLOUDFLARE) console.log('Composition:', await checkComposition(browser, WEB_BASE_URL, path.join(ROOT_DIR, '.local', 'screenshots')));
 
     console.log(JSON.stringify({ fallback: fallbackResult, scenarios: results, viewports, localization, poemRotation, stableStats }, null, 2));
   } finally {

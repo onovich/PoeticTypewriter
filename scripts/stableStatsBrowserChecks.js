@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 
 export async function checkStableStats(browser, url) {
   for (const locale of ['en-US', 'zh-CN']) {
-    for (const width of [320, 390, 1440]) {
-      const context = await browser.newContext({ locale, viewport: { width, height: 844 } });
+    for (const width of [320, 390, 1440, 2304]) {
+      const context = await browser.newContext({ locale, viewport: { width, height: width === 2304 ? 1278 : 844 } });
       const page = await context.newPage();
       let release;
       const gate = new Promise(resolve => { release = resolve; });

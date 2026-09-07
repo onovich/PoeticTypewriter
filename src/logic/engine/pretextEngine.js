@@ -7,12 +7,24 @@ export class PretextEngine {
     container.innerHTML = '';
     this.targetSpans = [];
 
+    let word = null;
     for (let index = 0; index < text.length; index += 1) {
       const char = text[index];
       const span = document.createElement('span');
       span.innerText = char === ' ' ? '\u00A0' : char;
       span.className = 'inline-block transition-opacity duration-500';
-      container.appendChild(span);
+      if (char === ' ') {
+        span.classList.add('poem-space');
+        container.appendChild(span);
+        word = null;
+      } else {
+        if (!word) {
+          word = document.createElement('span');
+          word.className = 'poem-word';
+          container.appendChild(word);
+        }
+        word.appendChild(span);
+      }
       this.targetSpans.push({ char, element: span });
     }
   }

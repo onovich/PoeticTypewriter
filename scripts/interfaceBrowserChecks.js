@@ -5,8 +5,8 @@ const settled = page => page.waitForFunction(() => !document.querySelector('#app
 const ready = page => page.waitForFunction(() => window.__POETIC_TYPEWRITER__?.summary?.status === 'awaiting-first-input');
 
 export async function checkLocalizedInterface(browser, url, directory) {
-  for (const width of [320, 390, 768, 1024, 1440]) {
-    const context = await browser.newContext({ viewport: { width, height: 900 }, locale: 'zh-CN' });
+  for (const width of [320, 390, 768, 1024, 1440, 2304]) {
+    const context = await browser.newContext({ viewport: { width, height: width === 2304 ? 1278 : 900 }, locale: 'zh-CN' });
     const page = await context.newPage();
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
@@ -49,7 +49,7 @@ export async function checkLocalizedInterface(browser, url, directory) {
       }
       await page.waitForFunction(() => parseFloat(document.querySelector('#challenge-elapsed').textContent) >= 2);
       assert(await page.evaluate(() => {
-        const target = document.querySelector('#target-poem > span').getBoundingClientRect();
+        const target = document.querySelector('#target-poem .poem-word > span').getBoundingClientRect();
         const balloon = document.querySelector('.balloon-char').getBoundingClientRect();
         return Math.abs(target.bottom - balloon.bottom) < 10;
       }), 'typed balloon aligns after translated layout changes');
@@ -110,5 +110,5 @@ export async function checkLocalizedInterface(browser, url, directory) {
     await settled(page);
     assert.equal(await page.locator('html').getAttribute('lang'), 'en');
   } finally { await context.close(); }
-  return { languages: ['zh-CN', 'en'], widths: [320, 390, 768, 1024, 1440], languagePreservesRun: true, cachedPreference: true, stableKeyboard: true, staleResponseIgnored: true, reducedMotion: true };
+  return { languages: ['zh-CN', 'en'], widths: [320, 390, 768, 1024, 1440, 2304], languagePreservesRun: true, cachedPreference: true, stableKeyboard: true, staleResponseIgnored: true, reducedMotion: true };
 }

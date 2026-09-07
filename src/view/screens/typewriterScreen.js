@@ -15,7 +15,8 @@ export function renderTypewriterScreen() {
           <button type="button" data-locale="en" lang="en">EN</button>
         </div>
       </header>
-      <div id="stage" class="relative flex-1 w-full overflow-hidden">
+      <main class="writing-space">
+      <div id="stage" class="relative w-full">
         ${renderChallengePanel()}
         <div class="poem-target-area relative w-full flex justify-center px-4">
           <div id="target-poem" class="target-text flex flex-wrap justify-center"></div>
@@ -28,5 +29,6 @@ export function renderTypewriterScreen() {
         <div id="paper-slot-area" class="h-2 mx-auto rounded-full paper-slot mb-6 relative"></div>
         <div id="keyboard" class="flex flex-col gap-2 sm:gap-3 max-w-2xl mx-auto">${renderKeyboard()}</div>
       </div>
+      </main>
     </div>`;
 }
