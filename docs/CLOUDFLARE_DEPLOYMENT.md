@@ -31,9 +31,9 @@
 
 ## 远端部署结果
 
-- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `7f9070dd-eb4d-4380-8cc6-25ce8db91461`。
+- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `81df5b48-ac4a-4f45-be9c-e5bded3fcb15`。
 - Staging D1：`158c8d4c-78bf-4e80-97f6-7ac0a369b492`。
-- Production Worker：`poetic-typewriter`，版本 `12196d14-cede-4273-82fb-61bb500fadd9`，关闭 workers.dev。
+- Production Worker：`poetic-typewriter`，版本 `3527909b-7037-4e8c-8bf9-0c0869e6e2a3`，关闭 workers.dev。
 - Production D1：`7cf4511c-9da0-441e-9f38-f000ed0f64bd`。
 - 已通过 API 确认生产仅绑定 `game.onovich.com/PoeticTypewriter` 与 `game.onovich.com/PoeticTypewriter/*` 两条路由，门户首页保留。
 - 真实 staging HTTPS 浏览器 smoke 全通过：pending、accepted、suspicious、rejected、失败回退、Cookie 作用域、308 跳转、路径隔离、桌面及手机竖屏布局、自由模式键盘输入。日志位于 `.local/staging-browser-smoke.log`。测试成绩仅写 staging。
@@ -153,3 +153,8 @@ HTML 预加载两款首屏 WOFF2 字体，Vite 自动转换为与 CSS 相同的�
 模式切换改为 History API 页内切换，中间内容与语言控件各以 180ms 淡出/淡入，tab 和打字机键盘 DOM 保留。语言切换淡出全部文本及可能重排的工具栏、面板，再替换文案并淡入；固定功能键宽度，保留输入和同一计时时钟。支持浏览器前进/后退，连续切换串行执行，旧模式请求响应通过会话代次隔离，减少动态效果偏好下使用零时长过渡。字符气球坐标改为舞台相对坐标，切语言/布局变化时重测对齐。
 
 验证：本地 Cloudflare 完整浏览器 smoke 的 accepted/suspicious/rejected、失败回退、桌面及手机输入/布局/计时均通过；新增中英 320/390/768/1024/1440px 检查，包括缓存覆盖浏览器默认、语言切换保留输入及计时、稳定键盘 DOM、后退恢复、迟到响应隔离、减少动态效果、速度数值不溢出、字符对齐和无页面异常。对应截图在 `.local/screenshots/localized-*.png`。新增语言优先级、字典键一致、存储不可用测试。
+本轮已发布源码 `15a254a`：staging 版本 `81df5b48-ac4a-4f45-be9c-e5bded3fcb15`，production 版本 `3527909b-7037-4e8c-8bf9-0c0869e6e2a3`，生产 100% 流量生效。生产首次上传后的激活请求遭网络中断，经查询确认旧版本仍生效，再使用 `wrangler versions deploy` 激活已上传版本，未重复上传。
+
+预览真实 HTTPS 完整 smoke 通过；生产中英文 320/390/768/1024/1440px、语言缓存、输入/计时保留、固定键盘、后退、旧请求隔离、减少动态效果全部通过，截图已检查。生产只输入单字符，不完成或提交成绩；测试的大速度数值只临时修改当前浏览器快照用于布局检查，不写数据库。HTML 保持重新验证，API health 为 200/no-store，JS 为 200/immutable，门户浏览器检查 200 且保留 Onovich 内容。临时上游转发已关闭，临时密钥文件已移除。
+
+本轮证据位于此工作区忽略目录 `.local/ui-smoke-final.log`、`.local/ui-staging-smoke.log`、`.local/ui-production-activation.log`、`.local/ui-production-verification.log` 和 `.local/screenshots/production-localized/`。
