@@ -31,9 +31,9 @@
 
 ## 远端部署结果
 
-- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `a3b5d3e9-d633-4849-a9ec-dc2c3e62eda4`。
+- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `44e76283-4e85-4c9c-93cd-d37739baf846`。
 - Staging D1：`158c8d4c-78bf-4e80-97f6-7ac0a369b492`。
-- Production Worker：`poetic-typewriter`，版本 `963c2145-bb06-4c59-bcfd-cf83eaa32513`，关闭 workers.dev。
+- Production Worker：`poetic-typewriter`，版本 `49c41b88-805c-430f-8ac7-00654b213e12`，关闭 workers.dev。
 - Production D1：`7cf4511c-9da0-441e-9f38-f000ed0f64bd`。
 - 已通过 API 确认生产仅绑定 `game.onovich.com/PoeticTypewriter` 与 `game.onovich.com/PoeticTypewriter/*` 两条路由，门户首页保留。
 - 真实 staging HTTPS 浏览器 smoke 全通过：pending、accepted、suspicious、rejected、失败回退、Cookie 作用域、308 跳转、路径隔离、桌面及手机竖屏布局、自由模式键盘输入。日志位于 `.local/staging-browser-smoke.log`。测试成绩仅写 staging。
@@ -177,3 +177,7 @@ HTML 预加载两款首屏 WOFF2 字体，Vite 自动转换为与 CSS 相同的�
 顶部模式和语言控件改为无背景、无卡片边框的轻量文字导航，用短细线和微小圆点区分当前选择，保留 44px 点击高度与键盘焦点轮廓。统计改用更小的衬线数字、低调暖灰色、居中四列和两侧短分隔线；中英文、320–1440px 和已有淡入淡出均保留。
 
 本地完整浏览器回归通过。新增延迟提交回归在中英 320/390/1440px 下模拟等待服务端与 1.21 字符/秒成功响应，严格比较诗句纵坐标、统计高度和键盘坐标：提交中、成功返回及异常提示出现时均与输入前一致。截图位于 `.local/screenshots/localized-*.png`，日志为 `.local/quiet-ui-smoke.log`。
+
+本轮源码 `6fdba08` 已发布：staging `44e76283-4e85-4c9c-93cd-d37739baf846`，production `49c41b88-805c-430f-8ac7-00654b213e12`。两环境真实页面均通过延迟响应固定坐标回归，以及 390/1440px 中英文四列统计、透明导航与语言切换验收；生产门户仍返回 200 并保留 Onovich 内容。成绩接口采用浏览器模拟，没有提交真实挑战成绩。
+
+发布与验收证据：`.local/quiet-ui-staging-deploy.log`、`.local/quiet-ui-production-deploy.log`、`.local/quiet-ui-staging-verification.log`、`.local/quiet-ui-production-verification.log`、`.local/screenshots/production-quiet-*.png`。
