@@ -1,10 +1,10 @@
 # Immersive layout preview — 2026-09-08
 
-This is a reversible visual experiment, not a production release.
+The user approved this reversible experiment for production on 2026-09-08. It is now released; the notes below also preserve the preview history.
 
 - Branch: `codex/immersive-layout-preview`.
 - Baseline: `be0b24b` (includes the SEO center's latest documentation); previous UI commit: `4d94dae`.
-- Production remains at Worker version `1f0f4f28-40d6-4ea4-b768-267a990d112a` with the original full-width keyboard.
+- Production version: `2548f2ee-c271-430f-b088-2e63b2e8e20f` (source `75be88d`). Previous production version, retained for rollback: `1f0f4f28-40d6-4ea4-b768-267a990d112a`.
 - Preview: https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/?mode=daily
 - Preview Worker version: `a93d3e0f-1a35-4894-bd9c-c1078c39d888`.
 
@@ -22,9 +22,9 @@ Full local browser regression: `.local/layout-preview-smoke-final.log`, includin
 
 ## Keep or discard
 
-Do not merge this branch into main or deploy it to production until the user accepts the preview. If rejected, main and production already retain the previous interface; no production rollback is necessary. Keep the experimental branch for comparison, or rebuild the baseline in an isolated checkout and redeploy it to staging if the user wants the preview removed. Do not reset or overwrite unrelated SEO work.
+The user accepted the preview and requested production deployment. Keep the baseline and experimental branch for comparison. If the user requests rollback, restore the previous release using the normal deployment workflow and revert the three feature commits in reverse order (`75be88d`, `cb23ae1`, `21429ec`) in new Git history. Preserve unrelated SEO work and inspect subsequent changes before reverting.
 
-If accepted later, merge the complete branch after checking current main, rerun validation, and deploy through the normal staging/production workflow. If subsequently reverted, revert the experiment's commit through a normal new commit; avoid destructive history rewrites. No database migration or production data changes are involved.
+Avoid destructive history rewrites. No database migration is involved; a rollback does not need to delete local archives or server scores.
 
 ## Quiet loading follow-up
 

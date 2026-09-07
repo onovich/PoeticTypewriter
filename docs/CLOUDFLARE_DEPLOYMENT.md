@@ -31,9 +31,9 @@
 
 ## 远端部署结果
 
-- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `b03c9cee-6ed5-41e8-8eb7-32228da24b0d`。
+- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `a93d3e0f-1a35-4894-bd9c-c1078c39d888`。
 - Staging D1：`158c8d4c-78bf-4e80-97f6-7ac0a369b492`。
-- Production Worker：`poetic-typewriter`，版本 `1f0f4f28-40d6-4ea4-b768-267a990d112a`，关闭 workers.dev。
+- Production Worker：`poetic-typewriter`，版本 `2548f2ee-c271-430f-b088-2e63b2e8e20f`，关闭 workers.dev。
 - Production D1：`7cf4511c-9da0-441e-9f38-f000ed0f64bd`。
 - 已通过 API 确认生产仅绑定 `game.onovich.com/PoeticTypewriter` 与 `game.onovich.com/PoeticTypewriter/*` 两条路由，门户首页保留。
 - 真实 staging HTTPS 浏览器 smoke 全通过：pending、accepted、suspicious、rejected、失败回退、Cookie 作用域、308 跳转、路径隔离、桌面及手机竖屏布局、自由模式键盘输入。日志位于 `.local/staging-browser-smoke.log`。测试成绩仅写 staging。
@@ -203,3 +203,9 @@ HTML 预加载两款首屏 WOFF2 字体，Vite 自动转换为与 CSS 相同的�
 本地完整 Cloudflare 浏览器回归通过（含中英 320–1440px、模式和语言切换、成绩等待及返回固定坐标、自由模式出题、SEO 检查）。手机与桌面截图已人工检查；staging 线上固定坐标与中英文布局再次通过。日志 `.local/zen-ui-smoke.log`、`.local/zen-staging-verification.log`，截图沿用 `.local/screenshots/localized-*.png` 和 `staging-quiet-*.png`。
 
 本轮发布 staging `b03c9cee-6ed5-41e8-8eb7-32228da24b0d`、production `1f0f4f28-40d6-4ea4-b768-267a990d112a`。生产中英手机与桌面、延迟提交/成功返回/异常提示的固定坐标验证均通过，门户保持 200。无真实挑战成绩提交。生产验收日志：`.local/zen-production-verification.log`。
+
+## 预览版正式发布（2026-09-08）
+
+用户批准上线预览分支，源码 `75be88d` 已发布为 production `2548f2ee-c271-430f-b088-2e63b2e8e20f`。包含居中书写布局、按单词换行、加载留白与淡入、个人成绩本地存档和明确的个人最佳/排名标签。无数据库迁移。原 production `1f0f4f28-40d6-4ea4-b768-267a990d112a` 保留为回撤版本，源码基线 `be0b24b`，详见 `docs/IMMERSIVE_PREVIEW.md`。
+
+线上验证通过：2304×1278、1440、1024、390、320 视口的最长诗句/键盘边界；中英加载与减少动态效果；本地成绩刷新、换日及身份隔离；真实 API 玩家标识和十句上限；SEO 抓取、站点地图、404 和门户 200。所有成绩提交均使用浏览器模拟，没有生产成绩写入。日志 `.local/immersive-production-deploy.log`、`.local/immersive-production-verification.log`；截图 `.local/screenshots/production-approved/`。
