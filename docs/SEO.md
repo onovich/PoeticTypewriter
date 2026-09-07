@@ -3,7 +3,7 @@
 Canonical site: https://game.onovich.com/PoeticTypewriter/
 
 - The initial HTML contains a descriptive English title, description, canonical URL, Open Graph metadata, a 1200 × 630 PNG preview, Twitter card metadata and factual WebApplication JSON-LD. No invented reviews or ratings.
-- Static introductory content and guide links are available before JavaScript runs. The hydrated game retains a semantic heading and a visible localized guide link. Language changes update the title and description without changing the canonical URL.
+- Static introductory content and guide links are available as a no-JavaScript fallback. Normal startup keeps an empty, dark game mount until scripts load, avoiding a flash of the English introduction. The hydrated game retains a semantic heading and a visible localized guide link. Language changes update the title and description without changing the canonical URL.
 - Free and daily query variants consolidate to the main game URL. UI localization alone does not create separate indexable game pages: the typing content is still English.
 - Build-generated English and Chinese guides have substantial visible localized content, self-canonicals, reciprocal hreflang links and x-default. They work without JavaScript and link back to the game.
 - `/PoeticTypewriter/sitemap.xml` lists the game and the two guides. It is linked from HTML and the main page's HTTP Link header. No artificial lastmod dates are emitted.

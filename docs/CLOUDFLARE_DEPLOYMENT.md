@@ -31,9 +31,9 @@
 
 ## 远端部署结果
 
-- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `c1abfdf2-44b6-451e-b49c-e34af0724835`。
+- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `6688e8ba-f7af-45e5-b8ed-a1b5a38cbe34`。
 - Staging D1：`158c8d4c-78bf-4e80-97f6-7ac0a369b492`。
-- Production Worker：`poetic-typewriter`，版本 `b9682df1-470a-45e9-9edc-bd0840f586e2`，关闭 workers.dev。
+- Production Worker：`poetic-typewriter`，版本 `cc38229e-4cf9-4950-aedc-4259358603d4`，关闭 workers.dev。
 - Production D1：`7cf4511c-9da0-441e-9f38-f000ed0f64bd`。
 - 已通过 API 确认生产仅绑定 `game.onovich.com/PoeticTypewriter` 与 `game.onovich.com/PoeticTypewriter/*` 两条路由，门户首页保留。
 - 真实 staging HTTPS 浏览器 smoke 全通过：pending、accepted、suspicious、rejected、失败回退、Cookie 作用域、308 跳转、路径隔离、桌面及手机竖屏布局、自由模式键盘输入。日志位于 `.local/staging-browser-smoke.log`。测试成绩仅写 staging。
@@ -219,3 +219,11 @@ HTML 预加载两款首屏 WOFF2 字体，Vite 自动转换为与 CSS 相同的�
 本地完整回归通过；新增浏览器检查覆盖自由模式真实淡出、每日挑战虚拟时钟超时、迟到 start 响应隔离、零成绩提交、恢复后全新 token、休眠时钟跳变和 RAF 停止。虚拟时钟不驱动 WAAPI 时间线，测试显式完成这部分动画，另用自由模式真实动画验证补足。两环境专项回归和固定坐标回归均通过。日志：`.local/idle-smoke-verified.log`、`.local/idle-staging-verification.log`、`.local/idle-production-verification.log`。
 
 Staging `c1abfdf2-44b6-451e-b49c-e34af0724835`；production `b9682df1-470a-45e9-9edc-bd0840f586e2`。上一个 production `2548f2ee-c271-430f-b088-2e63b2e8e20f` 保留用于回撤。线上验证的提交接口均模拟，不产生真实成绩。
+
+## 刷新首屏闪现修复（2026-09-08）
+
+初始英文简介移入 noscript，游戏挂载点为空；内联背景色保证外部样式和脚本到达前保持深色空白。元数据、结构化数据和独立玩法说明页保留。
+
+完整本地 Cloudflare 浏览器回归通过。新增启动检查主动阻塞脚本和样式，验证首屏无文字、背景正确、释放后游戏正常挂载；staging 和 production 均通过该检查及 SEO 浏览器检查。远端检查没有提交成绩。
+
+Staging `6688e8ba-f7af-45e5-b8ed-a1b5a38cbe34`；production `cc38229e-4cf9-4950-aedc-4259358603d4`。上一生产版本 `b9682df1-470a-45e9-9edc-bd0840f586e2` 保留用于回撤。

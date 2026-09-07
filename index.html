@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <style>html { background: #1a1a1a; color: #ccc5b7; } body { margin: 0; }</style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Poetic Typewriter — Free Poetry Typing Practice</title>
     <meta name="description" content="Practice English typing with short poetic lines and a vintage typewriter. Enjoy endless free practice or a daily ten-line challenge with speed tracking." />
@@ -23,15 +24,16 @@
     <link rel="preload" href="/node_modules/@fontsource/playfair-display/files/playfair-display-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
   </head>
   <body>
-    <div id="app">
+    <div id="app"></div>
+    <noscript>
       <main style="max-width:42rem;margin:10vh auto;padding:24px;line-height:1.8">
         <h1>Poetic Typewriter</h1>
         <p>Free English typing practice with short poetic lines and a vintage typewriter.</p>
         <p>Explore free mode at your own pace or complete ten lines in the daily challenge. Track your typing speed in characters per second.</p>
         <p><a href="guide/en/">How to play</a> · <a href="guide/zh/" lang="zh-CN">中文玩法说明</a></p>
-        <noscript><p>Enable JavaScript to play. The linked guides work without JavaScript.</p></noscript>
+        <p>Enable JavaScript to play. The linked guides work without JavaScript.</p>
       </main>
-    </div>
+    </noscript>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
