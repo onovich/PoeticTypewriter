@@ -1131,77 +1131,77 @@ export const CLASSIC_POEMS = Object.freeze([
     "text": "and many goodly states and kingdoms seen",
     "original": "And many goodly states and kingdoms seen;",
     "author": "John Keats",
-    "title": "On First Looking Into Chapman'S Homer",
+    "title": "On First Looking Into Chapman's Homer",
     "selection": 166
   },
   {
     "text": "round many western islands have i been",
     "original": "Round many western islands have I been",
     "author": "John Keats",
-    "title": "On First Looking Into Chapman'S Homer",
+    "title": "On First Looking Into Chapman's Homer",
     "selection": 166
   },
   {
     "text": "which bards in fealty to apollo hold",
     "original": "Which bards in fealty to Apollo hold.",
     "author": "John Keats",
-    "title": "On First Looking Into Chapman'S Homer",
+    "title": "On First Looking Into Chapman's Homer",
     "selection": 166
   },
   {
     "text": "oft of one wide expanse had i been told",
     "original": "Oft of one wide expanse had I been told",
     "author": "John Keats",
-    "title": "On First Looking Into Chapman'S Homer",
+    "title": "On First Looking Into Chapman's Homer",
     "selection": 166
   },
   {
     "text": "yet did i never breathe its pure serene",
     "original": "Yet did I never breathe its pure serene",
     "author": "John Keats",
-    "title": "On First Looking Into Chapman'S Homer",
+    "title": "On First Looking Into Chapman's Homer",
     "selection": 166
   },
   {
     "text": "till i heard chapman speak out loud and bold",
     "original": "Till I heard Chapman speak out loud and bold:",
     "author": "John Keats",
-    "title": "On First Looking Into Chapman'S Homer",
+    "title": "On First Looking Into Chapman's Homer",
     "selection": 166
   },
   {
     "text": "then felt i like some watcher of the skies",
     "original": "—Then felt I like some watcher of the skies",
     "author": "John Keats",
-    "title": "On First Looking Into Chapman'S Homer",
+    "title": "On First Looking Into Chapman's Homer",
     "selection": 166
   },
   {
     "text": "when a new planet swims into his ken",
     "original": "When a new planet swims into his ken;",
     "author": "John Keats",
-    "title": "On First Looking Into Chapman'S Homer",
+    "title": "On First Looking Into Chapman's Homer",
     "selection": 166
   },
   {
     "text": "or like stout cortez when with eagle eyes",
     "original": "Or like stout Cortez, when with eagle eyes",
     "author": "John Keats",
-    "title": "On First Looking Into Chapman'S Homer",
+    "title": "On First Looking Into Chapman's Homer",
     "selection": 166
   },
   {
     "text": "he stared at the pacific and all his men",
     "original": "He stared at the Pacific—and all his men",
     "author": "John Keats",
-    "title": "On First Looking Into Chapman'S Homer",
+    "title": "On First Looking Into Chapman's Homer",
     "selection": 166
   },
   {
     "text": "silent upon a peak in darien",
     "original": "Silent, upon a peak in Darien.",
     "author": "John Keats",
-    "title": "On First Looking Into Chapman'S Homer",
+    "title": "On First Looking Into Chapman's Homer",
     "selection": 166
   },
   {
@@ -1313,70 +1313,70 @@ export const CLASSIC_POEMS = Object.freeze([
     "text": "the fountains mingle with the river",
     "original": "The fountains mingle with the river",
     "author": "Percy Bysshe Shelley",
-    "title": "Love'S Philosophy",
+    "title": "Love's Philosophy",
     "selection": 184
   },
   {
     "text": "and the rivers with the ocean",
     "original": "And the rivers with the ocean,",
     "author": "Percy Bysshe Shelley",
-    "title": "Love'S Philosophy",
+    "title": "Love's Philosophy",
     "selection": 184
   },
   {
     "text": "the winds of heaven mix for ever",
     "original": "The winds of heaven mix for ever",
     "author": "Percy Bysshe Shelley",
-    "title": "Love'S Philosophy",
+    "title": "Love's Philosophy",
     "selection": 184
   },
   {
     "text": "nothing in the world is single",
     "original": "Nothing in the world is single,",
     "author": "Percy Bysshe Shelley",
-    "title": "Love'S Philosophy",
+    "title": "Love's Philosophy",
     "selection": 184
   },
   {
     "text": "all things by a law divine",
     "original": "All things by a law divine",
     "author": "Percy Bysshe Shelley",
-    "title": "Love'S Philosophy",
+    "title": "Love's Philosophy",
     "selection": 184
   },
   {
     "text": "see the mountains kiss high heaven",
     "original": "See the mountains kiss high heaven",
     "author": "Percy Bysshe Shelley",
-    "title": "Love'S Philosophy",
+    "title": "Love's Philosophy",
     "selection": 184
   },
   {
     "text": "and the waves clasp one another",
     "original": "And the waves clasp one another;",
     "author": "Percy Bysshe Shelley",
-    "title": "Love'S Philosophy",
+    "title": "Love's Philosophy",
     "selection": 184
   },
   {
     "text": "and the sunlight clasps the earth",
     "original": "And the sunlight clasps the earth,",
     "author": "Percy Bysshe Shelley",
-    "title": "Love'S Philosophy",
+    "title": "Love's Philosophy",
     "selection": 184
   },
   {
     "text": "and the moonbeams kiss the sea",
     "original": "And the moonbeams kiss the sea—",
     "author": "Percy Bysshe Shelley",
-    "title": "Love'S Philosophy",
+    "title": "Love's Philosophy",
     "selection": 184
   },
   {
     "text": "what are all these kissings worth",
     "original": "What are all these kissings worth,",
     "author": "Percy Bysshe Shelley",
-    "title": "Love'S Philosophy",
+    "title": "Love's Philosophy",
     "selection": 184
   },
   {

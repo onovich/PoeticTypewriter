@@ -31,9 +31,9 @@
 
 ## 远端部署结果
 
-- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `b25cd134-4e3e-4e11-82a6-3d853577beba`。
+- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `f11d3b4a-c637-4220-afbd-3c4f1f03d4d8`。
 - Staging D1：`158c8d4c-78bf-4e80-97f6-7ac0a369b492`。
-- Production Worker：`poetic-typewriter`，版本 `d501cabe-556d-4b20-939c-8360741b154f`，关闭 workers.dev。
+- Production Worker：`poetic-typewriter`，版本 `17340796-5e63-4420-bcbd-cbb6f1680350`，关闭 workers.dev。
 - Production D1：`7cf4511c-9da0-441e-9f38-f000ed0f64bd`。
 - 已通过 API 确认生产仅绑定 `game.onovich.com/PoeticTypewriter` 与 `game.onovich.com/PoeticTypewriter/*` 两条路由，门户首页保留。
 - 真实 staging HTTPS 浏览器 smoke 全通过：pending、accepted、suspicious、rejected、失败回退、Cookie 作用域、308 跳转、路径隔离、桌面及手机竖屏布局、自由模式键盘输入。日志位于 `.local/staging-browser-smoke.log`。测试成绩仅写 staging。
@@ -239,3 +239,5 @@ Staging `6688e8ba-f7af-45e5-b8ed-a1b5a38cbe34`；production `cc38229e-4cf9-4950-
 本地完整 Cloudflare 浏览器回归及 API 测试通过；新增检查覆盖连续十句完成、刷新恢复、320/390/1440 布局、中英切换和自由模式入口。单测覆盖加权平均、历史比较、玩家隔离、缺失与异常记录、诗行出处规范化和全年每日作者多样性。日志 `.local/completion-final-smoke.log`、`.local/completion-api-tests.log`。
 
 Staging `b25cd134-4e3e-4e11-82a6-3d853577beba`；production `d501cabe-556d-4b20-939c-8360741b154f`。上一生产版本 `cc38229e-4cf9-4950-aedc-4259358603d4` 保留用于回撤。两环境已通过启动及总结专项检查，生产额外验证 320px 作者出处不遮挡键盘；远端所有成绩接口使用浏览器模拟，不写入真实成绩。日志 `.local/completion-staging-verification.log`、`.local/completion-production-verification.log`；截图位于 `.local/screenshots/completion-*.png` 和 `.local/screenshots/classic-poem-320.png`。
+
+同轮截图检查后，修正作品标题所有格大小写（例如 `Love's Philosophy`）。最终 staging `f11d3b4a-c637-4220-afbd-3c4f1f03d4d8`，production `17340796-5e63-4420-bcbd-cbb6f1680350`；仅出处标题变化，诗行及游戏逻辑不变。
