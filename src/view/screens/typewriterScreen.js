@@ -20,6 +20,7 @@ export function renderTypewriterScreen() {
         ${renderChallengePanel()}
         <div class="poem-target-area relative w-full flex justify-center px-4">
           <div id="target-poem" class="target-text flex flex-wrap justify-center"></div>
+          <p id="poem-attribution" class="poem-attribution" hidden></p>
         </div>
         <svg id="string-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></svg>
         <div id="balloons-container" class="absolute inset-0 w-full h-full pointer-events-none"></div>

@@ -13,5 +13,16 @@ export function renderChallengePanel() {
       </div>
     </section>
   </div>
-  <div class="challenge-notice-slot"><p id="challenge-stats-note" class="challenge-stats-note" role="status" hidden></p></div>`;
+  <div class="challenge-notice-slot"><p id="challenge-stats-note" class="challenge-stats-note" role="status" hidden></p></div>
+  <section id="challenge-completion" class="challenge-completion" hidden aria-labelledby="completion-title" aria-live="polite">
+    <p class="completion-eyebrow" data-i18n="completionEyebrow"></p>
+    <h2 id="completion-title" data-i18n="completionTitle"></h2>
+    <div class="completion-metrics">
+      <div><span data-i18n="completionAverage"></span><strong id="completion-average"></strong></div>
+      <div><span data-i18n="completionBest"></span><strong id="completion-best"></strong></div>
+    </div>
+    <p id="completion-comparison"></p>
+    <p class="completion-return" data-i18n="completionReturn"></p>
+    <a class="completion-free" href="?mode=free" data-i18n="completionFree"></a>
+  </section>`;
 }

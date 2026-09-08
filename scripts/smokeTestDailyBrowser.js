@@ -14,6 +14,7 @@ import { checkQuietLoading } from './loadingBrowserChecks.js';
 import { checkLocalScores } from './localScoresBrowserChecks.js';
 import { checkIdleReset } from './idleBrowserChecks.js';
 import { checkQuietStartup } from './startupBrowserChecks.js';
+import { checkCompletion } from './completionBrowserChecks.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '..');
@@ -536,6 +537,7 @@ async function main() {
     if (CLOUDFLARE) console.log('Local scores:', await checkLocalScores(browser, WEB_BASE_URL));
     if (CLOUDFLARE) console.log('Idle reset:', await checkIdleReset(browser, WEB_BASE_URL));
     if (CLOUDFLARE) console.log('Startup:', await checkQuietStartup(browser, WEB_BASE_URL));
+    if (CLOUDFLARE) console.log('Completion:', await checkCompletion(browser, WEB_BASE_URL));
 
     console.log(JSON.stringify({ fallback: fallbackResult, scenarios: results, viewports, localization, poemRotation, stableStats }, null, 2));
   } finally {

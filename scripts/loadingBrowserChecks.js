@@ -34,9 +34,9 @@ export async function checkQuietLoading(browser, url) {
       const animation = await page.locator('#challenge-stats-panel').evaluate(element => getComputedStyle(element).animationName);
       assert.equal(animation, reducedMotion === 'reduce' ? 'none' : 'challenge-arrival');
       await page.locator('#stage').evaluate(element => Promise.all(element.getAnimations({ subtree: true }).map(a => a.finished)));
-      assert(await page.locator('#challenge-stats-panel').isVisible());
+      assert.equal(await page.locator('#challenge-stats-panel').isVisible(), !completed);
       assert.equal(await page.locator('#stage').getAttribute('aria-busy'), 'false');
-      if (completed) assert(await page.locator('#challenge-stats-note').isVisible());
+      if (completed) assert(await page.locator('#challenge-completion').isVisible());
       else {
         await page.keyboard.type('q');
         await page.waitForFunction(() => window.__POETIC_TYPEWRITER__.summary.status === 'ready');

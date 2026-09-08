@@ -8,6 +8,7 @@ import { syncPresentation } from '../../view/components/runtimePresentation.js';
 import { createTransitions } from '../../view/transitions.js';
 import { createFreePoemDeck } from '../services/freePoemDeck.js';
 import { createLocalScoreArchive } from '../services/localScoreArchive.js';
+import { createCompletionHistory } from '../services/completionHistory.js';
 
 export async function bootstrapAppRuntime(rootElement) {
   const config = {
@@ -21,6 +22,7 @@ export async function bootstrapAppRuntime(rootElement) {
   const freeDeck = createFreePoemDeck({ poems: FREE_MODE_POEMS, storage });
   const store = createChallengeSessionStore();
   const scoreArchive = createLocalScoreArchive(storage);
+  const completionHistory = createCompletionHistory(storage);
   const client = config.apiBaseUrl ? new CompetitionClient({ baseUrl: config.apiBaseUrl }) : null;
   const transition = createTransitions(rootElement);
   let generation = 0;
@@ -77,6 +79,7 @@ export async function bootstrapAppRuntime(rootElement) {
         });
         if (generation !== requestGeneration) return;
         const previous = store.getSnapshot();
+        completionHistory.record(previous, run.currentItem, runMetrics, summary);
         const nextItem = summary.nextItem ?? null;
         clearRun();
         app.setPoems(nextPoems(nextItem), { resetIndex: true });
@@ -106,6 +109,7 @@ export async function bootstrapAppRuntime(rootElement) {
   const bridge = { app, config, getSnapshot: () => store.getSnapshot() };
   window.__POETIC_TYPEWRITER__ = bridge;
   store.subscribe(snapshot => {
+    snapshot.completion = completionHistory.summarize(snapshot);
     if (snapshot.mode === APP_MODES.DAILY_CHALLENGE && ['awaiting-first-input', 'completed'].includes(snapshot.status)) scoreArchive.save(snapshot);
     runtime.mode = snapshot.mode;
     bridge.mode = snapshot.mode;
@@ -155,6 +159,11 @@ export async function bootstrapAppRuntime(rootElement) {
       void loadMode(tab.dataset.mode);
     });
   }));
+  rootElement.querySelector('.completion-free').addEventListener('click', event => {
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    rootElement.querySelector('[data-mode="free"]').click();
+  });
   window.addEventListener('popstate', () => {
     const mode = resolveAppMode(window.location.search, config.defaultMode);
     void transition('mode', () => { void loadMode(mode); });

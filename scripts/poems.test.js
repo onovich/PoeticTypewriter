@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { POEM_LIBRARY } from '../shared/poemLibrary.js';
+import { POEM_LIBRARY, getPoemAttribution } from '../shared/poemLibrary.js';
+import { CLASSIC_POEMS } from '../shared/classicPoems.js';
 import { createFreePoemDeck, FREE_DECK_KEY } from '../src/logic/services/freePoemDeck.js';
 import { generateDailyChallengeSet } from '../api/src/challengeGeneration.js';
 
@@ -8,6 +9,14 @@ const makeStorage = () => {
   const items = new Map();
   return { getItem: key => items.get(key), setItem: (key, value) => items.set(key, value) };
 };
+test('every classic typing line preserves a traceable source and normalizes without splitting accented words', () => {
+  for (const poem of CLASSIC_POEMS) {
+    assert(poem.author && poem.title && poem.selection > 0);
+    assert.equal(poem.text, poem.original.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z ]/g, ' ').trim().replace(/\s+/g, ' '));
+    assert.doesNotMatch(poem.original, /['‘’]/);
+    assert(poem.text.length <= 45);
+  }
+});
 test('large typing library is unique and keyboard compatible; every daily set has ten distinct lines', () => {
   assert(POEM_LIBRARY.length >= 400);
   assert.equal(new Set(POEM_LIBRARY.map(text => text.trim().toLowerCase())).size, POEM_LIBRARY.length);
@@ -17,6 +26,7 @@ test('large typing library is unique and keyboard compatible; every daily set ha
     const set = generateDailyChallengeSet(date);
     assert.equal(set.items.length, 10);
     assert.equal(new Set(set.items.map(item => item.normalizedText)).size, 10);
+    assert.equal(new Set(set.items.map(item => getPoemAttribution(item.text).author)).size, 10);
     assert.deepEqual(set, generateDailyChallengeSet(date));
   }
   for (const count of [0, -1, 1.5, NaN, Infinity, 10000]) assert.throws(() => generateDailyChallengeSet('2026-01-01', count));

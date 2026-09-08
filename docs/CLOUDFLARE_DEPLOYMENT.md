@@ -31,9 +31,9 @@
 
 ## 远端部署结果
 
-- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `6688e8ba-f7af-45e5-b8ed-a1b5a38cbe34`。
+- Staging：`https://poetic-typewriter-staging.onovich1110.workers.dev/PoeticTypewriter/`，版本 `b25cd134-4e3e-4e11-82a6-3d853577beba`。
 - Staging D1：`158c8d4c-78bf-4e80-97f6-7ac0a369b492`。
-- Production Worker：`poetic-typewriter`，版本 `cc38229e-4cf9-4950-aedc-4259358603d4`，关闭 workers.dev。
+- Production Worker：`poetic-typewriter`，版本 `d501cabe-556d-4b20-939c-8360741b154f`，关闭 workers.dev。
 - Production D1：`7cf4511c-9da0-441e-9f38-f000ed0f64bd`。
 - 已通过 API 确认生产仅绑定 `game.onovich.com/PoeticTypewriter` 与 `game.onovich.com/PoeticTypewriter/*` 两条路由，门户首页保留。
 - 真实 staging HTTPS 浏览器 smoke 全通过：pending、accepted、suspicious、rejected、失败回退、Cookie 作用域、308 跳转、路径隔离、桌面及手机竖屏布局、自由模式键盘输入。日志位于 `.local/staging-browser-smoke.log`。测试成绩仅写 staging。
@@ -227,3 +227,15 @@ Staging `c1abfdf2-44b6-451e-b49c-e34af0724835`；production `b9682df1-470a-45e9-
 完整本地 Cloudflare 浏览器回归通过。新增启动检查主动阻塞脚本和样式，验证首屏无文字、背景正确、释放后游戏正常挂载；staging 和 production 均通过该检查及 SEO 浏览器检查。远端检查没有提交成绩。
 
 Staging `6688e8ba-f7af-45e5-b8ed-a1b5a38cbe34`；production `cc38229e-4cf9-4950-aedc-4259358603d4`。上一生产版本 `b9682df1-470a-45e9-9edc-bd0840f586e2` 保留用于回撤。
+
+## 每日收尾与经典诗句（2026-09-09）
+
+完成十句后，统计行和打字目标让位于淡入的总结：十句平均速度、个人今日最快单句、与本设备上一次完整挑战的平均速度差异，以及明日更新时刻和自由模式入口。平均速度使用有效记录的总字符数除以总输入耗时，排除句间动画；只有十句有效记录齐全才显示，既有不完整历史不补造平均值。服务端个人最佳仍为权威值。
+
+`poetic-typewriter.completions.v1` 按玩家、日期、挑战保存本地有效单句记录，刷新和模式切换恢复总结。拒绝或异常结果不进入平均值；存储不可用不影响游戏。中文提示北京时间 08:00，英文提示 00:00 UTC。
+
+新题库含 504 条、18 位作者、41 篇作品的公版诗行，来源及规范化方法见 `docs/POEM_SOURCES.md`。界面附轻量作者和作品链接。每日新集合优先十位不同作者，保留日期确定性和句子唯一性；已有 D1 当日集合不改动。自由模式继续当天整库不重复、用尽循环。没有数据库迁移。
+
+本地完整 Cloudflare 浏览器回归及 API 测试通过；新增检查覆盖连续十句完成、刷新恢复、320/390/1440 布局、中英切换和自由模式入口。单测覆盖加权平均、历史比较、玩家隔离、缺失与异常记录、诗行出处规范化和全年每日作者多样性。日志 `.local/completion-final-smoke.log`、`.local/completion-api-tests.log`。
+
+Staging `b25cd134-4e3e-4e11-82a6-3d853577beba`；production `d501cabe-556d-4b20-939c-8360741b154f`。上一生产版本 `cc38229e-4cf9-4950-aedc-4259358603d4` 保留用于回撤。两环境已通过启动及总结专项检查，生产额外验证 320px 作者出处不遮挡键盘；远端所有成绩接口使用浏览器模拟，不写入真实成绩。日志 `.local/completion-staging-verification.log`、`.local/completion-production-verification.log`；截图位于 `.local/screenshots/completion-*.png` 和 `.local/screenshots/classic-poem-320.png`。

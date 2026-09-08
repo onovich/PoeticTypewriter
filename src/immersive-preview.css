@@ -57,6 +57,27 @@ body { overflow-y: auto; }
 .balloon-char { font-size: var(--verse-size); line-height: 1.65; }
 .poem-word { display: inline-flex; white-space: nowrap; }
 .poem-space { white-space: pre; }
+.poem-target-area { flex-direction: column; align-items: center; }
+.poem-attribution { margin: 12px 0 0; max-width: 90%; text-align: center; font: 11px/1.6 system-ui, sans-serif; color: #999b8f; }
+.poem-attribution a { color: inherit; text-decoration: none; }
+.poem-attribution a:hover { color: #ccc5b7; text-decoration: underline; }
+.challenge-completion { position: absolute; inset: 0 20px; z-index: 20; text-align: center; color: #ccc5b7; animation: completion-arrival 420ms ease both; }
+.challenge-completion[hidden] { display: none; }
+.completion-eyebrow { margin: 4px 0 16px; font: 11px/1.6 system-ui, sans-serif; letter-spacing: .12em; color: #999b8f; }
+.challenge-completion h2 { font: 400 clamp(24px, 3vw, 30px)/1.5 'Playfair Display', serif; margin: 0 0 24px; }
+.completion-metrics { display: flex; justify-content: center; gap: clamp(24px, 6vw, 64px); }
+.completion-metrics > div { display: flex; flex-direction: column; gap: 6px; }
+.completion-metrics span, #completion-comparison, .completion-return { font: 11px/1.7 system-ui, sans-serif; color: #999b8f; }
+.completion-metrics strong { font: 400 16px/1.6 system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+#completion-comparison { margin: 16px 0 0; }
+.completion-return { margin: 14px 0 8px; }
+.completion-free { font: 12px/1.8 system-ui, sans-serif; color: #b9bcae; text-decoration: underline; text-underline-offset: 5px; }
+#stage[data-completed='true'] #challenge-stats-panel,
+#stage[data-completed='true'] .poem-target-area,
+#stage[data-completed='true'] #string-canvas,
+#stage[data-completed='true'] #balloons-container { visibility: hidden; }
+@keyframes completion-arrival { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .challenge-completion { animation: none; } }
 .typewriter-body {
   flex: none; width: min(calc(100% - 48px), 840px); padding-top: 22px;
   border: 1px solid #30312d; border-radius: 24px;

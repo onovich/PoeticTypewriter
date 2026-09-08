@@ -1,5 +1,6 @@
 import { CHALLENGE_POOL } from '../data/challengePool.js';
 import { DAILY_ITEM_COUNT } from '../../shared/challengeRules.js';
+import { getPoemAttribution } from '../../shared/poemLibrary.js';
 
 const DEFAULT_ITEM_COUNT = DAILY_ITEM_COUNT;
 
@@ -69,7 +70,15 @@ export function generateDailyChallengeSet(challengeDate, itemCount = DEFAULT_ITE
   const seed = createSeedFromDate(challengeDate);
   const challengeId = `chl_${challengeDate.replace(/-/g, '_')}`;
   const compactDate = challengeDate.replace(/-/g, '');
-  const items = shuffleWithSeed(normalizedPool, seed)
+  const shuffled = shuffleWithSeed(normalizedPool, seed);
+  const authors = new Set();
+  const firstByAuthor = [], remaining = [];
+  for (const text of shuffled) {
+    const author = getPoemAttribution(text)?.author;
+    if (author && !authors.has(author)) { authors.add(author); firstByAuthor.push(text); }
+    else remaining.push(text);
+  }
+  const items = [...firstByAuthor, ...remaining]
     .slice(0, itemCount)
     .map((text, index) => {
       const position = index + 1;

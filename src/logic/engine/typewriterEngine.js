@@ -1,6 +1,7 @@
 import { GAME_PHASES, TIMINGS } from '../../data/config.js';
 import { easeInCubic, easeOutQuad } from './easing.js';
 import { PretextEngine } from './pretextEngine.js';
+import { getPoemAttribution } from '../../../shared/poemLibrary.js';
 
 export class TypewriterEngine {
   constructor(elements, options = {}) {
@@ -34,6 +35,7 @@ export class TypewriterEngine {
 
     if (this.poems.length === 0 && !this.poemSource) {
       this.currentPoem = '';
+      this.updateAttribution();
       this.pretextEngine.init(this.elements.targetPoemContainer, this.currentPoem);
       this.elements.targetPoemContainer.classList.remove('fade-out');
       this.typedIndex = 0;
@@ -47,6 +49,7 @@ export class TypewriterEngine {
     }
 
     this.currentPoem = this.poemSource ? this.poemSource() : this.poems[this.currentPoemIndex];
+    this.updateAttribution();
     this.pretextEngine.init(this.elements.targetPoemContainer, this.currentPoem);
     this.elements.targetPoemContainer.classList.remove('fade-out');
 
@@ -59,6 +62,22 @@ export class TypewriterEngine {
     this.elements.svgCanvas.innerHTML = '';
 
     if (!this.poemSource) this.currentPoemIndex = (this.currentPoemIndex + 1) % this.poems.length;
+  }
+
+  updateAttribution() {
+    const element = this.elements.targetPoemContainer.parentElement?.querySelector('#poem-attribution');
+    if (!element) return;
+    const poem = getPoemAttribution(this.currentPoem);
+    element.replaceChildren();
+    element.hidden = !poem;
+    if (!poem) return;
+    const link = document.createElement('a');
+    link.href = 'https://www.gutenberg.org/ebooks/19221';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = `${poem.author} · ${poem.title}`;
+    link.title = poem.original;
+    element.append(link);
   }
 
   handleInput(key) {
